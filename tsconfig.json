@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ES2020", // Target modern JavaScript
+        "module": "ESNext", // Use ESNext module system
+        "moduleResolution": "Node", // Use Node.js module resolution
+        "strict": true, // Enable all strict type-checking options
+        "esModuleInterop": true, // Allows clean imports from CommonJS packages
+        "resolveJsonModule": true, // Allows importing JSON files
+        "skipLibCheck": true, // Skips type-checking .d.ts files in node_modules
+        "forceConsistentCasingInFileNames": true, // Prevents case mismatch bugs
+        "baseUrl": ".", // Sets the root for non-relative imports
+        "paths": { // Creates path aliases
+            "@shared-types/*": ["packages/shared-types/*"],
+            "@lib-utils/*": ["packages/lib-utils/*"]
+        }
+    }
+}

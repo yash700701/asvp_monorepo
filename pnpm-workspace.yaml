@@ -1,0 +1,6 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Tells pnpm: These folders are workspaces
+# pnpm only looks for this file in the repo root.

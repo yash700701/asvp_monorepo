@@ -17,3 +17,5 @@ module.exports = {
         ]
     }
 };
+
+// ESLint is a guardrail that prevents small mistakes, bad habits, and team chaos before they hit production.

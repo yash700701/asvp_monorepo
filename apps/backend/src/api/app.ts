@@ -3,6 +3,7 @@ import cors from "cors";
 import healthRoute from "../routes/health";
 import brandsRoute from "../routes/brands";
 import queriesRoute from "../routes/queries";
+import queryScheduleRoute from "../routes/querySchedule";
 
 export const createApp = () => {
     const app = express();
@@ -15,6 +16,7 @@ export const createApp = () => {
     app.use("/health", healthRoute);
     app.use("/brands", brandsRoute);
     app.use("/queries", queriesRoute);
+    app.use("/queries", queryScheduleRoute);
 
     return app;
 };

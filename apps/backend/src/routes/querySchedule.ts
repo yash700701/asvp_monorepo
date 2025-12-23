@@ -26,6 +26,18 @@ router.post("/:id/schedule", async (req, res) => {
         return res.status(404).json({ error: "Query not found" });
     }
 
+    // fetch ChatGPT source
+    const sourceRes = await db.query(
+        `SELECT id FROM sources WHERE type = 'chatgpt'`
+    );
+
+    if (sourceRes.rows.length === 0) {
+        return res.status(500).json({ error: "ChatGPT source not found" });
+    }
+
+    const sourceId = sourceRes.rows[0].id;
+
+
     // Start Temporal workflow
     const temporal = await getTemporalClient();
 
@@ -37,7 +49,7 @@ router.post("/:id/schedule", async (req, res) => {
         args: [
             {
             queryId,
-            sourceId: "3fcad857-3004-4a73-8f7f-0690813891a2" // chatgpt source ID
+            sourceId
             }
         ]
         }

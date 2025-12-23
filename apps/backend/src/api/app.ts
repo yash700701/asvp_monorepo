@@ -5,6 +5,7 @@ import brandsRoute from "../routes/brands";
 import queriesRoute from "../routes/queries";
 import queryScheduleRoute from "../routes/querySchedule";
 import queryAutoScheduleRoute from "../routes/queryAutoSchedule";
+import analyticsVisibilityRoute from "../routes/analyticsVisibility";
 
 export const createApp = () => {
     const app = express();
@@ -19,6 +20,7 @@ export const createApp = () => {
     app.use("/queries", queriesRoute);
     app.use("/queries", queryScheduleRoute);
     app.use("/queries", queryAutoScheduleRoute);
+    app.use("/analytics", analyticsVisibilityRoute);
 
     return app;
 };

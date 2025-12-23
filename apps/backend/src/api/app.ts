@@ -4,6 +4,7 @@ import healthRoute from "../routes/health";
 import brandsRoute from "../routes/brands";
 import queriesRoute from "../routes/queries";
 import queryScheduleRoute from "../routes/querySchedule";
+import queryAutoScheduleRoute from "../routes/queryAutoSchedule";
 
 export const createApp = () => {
     const app = express();
@@ -17,6 +18,7 @@ export const createApp = () => {
     app.use("/brands", brandsRoute);
     app.use("/queries", queriesRoute);
     app.use("/queries", queryScheduleRoute);
+    app.use("/queries", queryAutoScheduleRoute);
 
     return app;
 };

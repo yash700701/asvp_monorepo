@@ -6,6 +6,7 @@ import queriesRoute from "../routes/queries";
 import queryScheduleRoute from "../routes/querySchedule";
 import queryAutoScheduleRoute from "../routes/queryAutoSchedule";
 import analyticsVisibilityRoute from "../routes/analyticsVisibility";
+import analyticsShareOfVoiceRoute from "../routes/analyticsShareOfVoice";
 
 export const createApp = () => {
     const app = express();
@@ -21,6 +22,7 @@ export const createApp = () => {
     app.use("/queries", queryScheduleRoute);
     app.use("/queries", queryAutoScheduleRoute);
     app.use("/analytics", analyticsVisibilityRoute);
+    app.use("/analytics", analyticsShareOfVoiceRoute);
 
     return app;
 };

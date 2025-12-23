@@ -37,7 +37,7 @@ router.post("/:id/schedule", async (req, res) => {
         args: [
             {
             queryId,
-            sourceId: "3fcad857-3004-4a73-8f7f-0690813891a2" // TEMP: hardcoded
+            sourceId: "3fcad857-3004-4a73-8f7f-0690813891a2" // chatgpt source ID
             }
         ]
         }

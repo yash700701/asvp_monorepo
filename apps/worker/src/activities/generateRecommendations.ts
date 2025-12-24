@@ -1,4 +1,6 @@
 import { db } from "../db/client";
+import { FLAGS } from "../config/flags";
+import { callLLMRecommend } from "../llm/client";
 
 export async function generateRecommendations(input: {
     customerId: string;
@@ -123,5 +125,60 @@ export async function generateRecommendations(input: {
             { avg_confidence: row.avg_confidence }
         ]
         );
+    }
+
+    if (!FLAGS.ENABLE_LLM_RECOMMENDATIONS) {
+        return;
+    }
+
+    // Fetch recent alerts to ground LLM prompts
+    const alertsLlm = await db.query(
+        `
+        SELECT a.alert_type, a.source_id, a.message, s.type AS source_type
+        FROM alerts a
+        LEFT JOIN sources s ON s.id = a.source_id
+        WHERE a.customer_id = $1
+        AND a.created_at >= now() - INTERVAL '2 days'
+        `,
+        [input.customerId]
+    );
+
+    for (const alert of alertsLlm.rows) {
+        try {
+        const llmPayload = {
+            type: alert.alert_type,
+            brand: "DEFAULT_BRAND", // single-tenant MVP; replace later
+            query: "N/A",           // can be enriched later
+            source: alert.source_type || "unknown",
+            signals: {
+            alert_message: alert.message
+            }
+        };
+
+        const llmResult = await callLLMRecommend(llmPayload);
+
+        await db.query(
+            `
+            INSERT INTO recommendations (
+            customer_id,
+            source_id,
+            type,
+            priority,
+            message,
+            evidence
+            )
+            VALUES ($1, $2, 'llm_recommendation', 'high', $3, $4)
+            `,
+            [
+            input.customerId,
+            alert.source_id,
+            llmResult.recommendation,
+            { llm_confidence: llmResult.confidence }
+            ]
+        );
+        } catch (err) {
+        // IMPORTANT: LLM failure must NOT break pipeline
+        console.error("LLM recommendation failed:", err);
+        }
     }
 }

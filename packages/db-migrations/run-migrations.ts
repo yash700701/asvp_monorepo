@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import { Pool } from "pg";
-import WebSocket from "ws";
 
 dotenv.config({
     path: path.resolve(__dirname, "../../.env"),

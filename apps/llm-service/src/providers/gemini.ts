@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { LLMProvider, RecommendInput, RecommendOutput } from "./types";
+import { estimateTokens } from "../utils/tokens";
 import path from "path";
 import dotenv from "dotenv";
 
@@ -11,6 +12,8 @@ const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) throw new Error("GEMINI_API_KEY not set");
 
 const ai = new GoogleGenAI({});
+const INPUT_COST_PER_1K_TOKENS = 0.00030; //  in $
+const OUTPUT_COST_PER_1K_TOKENS = 0.00250; 
 
 export class GeminiProvider implements LLMProvider {
     async recommend(input: RecommendInput): Promise<RecommendOutput> {
@@ -42,11 +45,27 @@ export class GeminiProvider implements LLMProvider {
             },
             }
         });
+        
+        const promptTokens = estimateTokens(prompt);
         const text = response.text ?? "";
+        const outputTokens = estimateTokens(text);
+        
+        const totalTokens = promptTokens + outputTokens;
+        const estimatedInputCost = (promptTokens / 1000) * INPUT_COST_PER_1K_TOKENS;
+        const estimatedOutputCost = (outputTokens / 1000) * OUTPUT_COST_PER_1K_TOKENS;
+
+        const totalEstimatedCost = estimatedInputCost + estimatedOutputCost;
+
+        console.log("[LLM_USAGE]", {
+            provider: "gemini",
+            totalTokens,
+            estimatedCost: totalEstimatedCost
+        });
+
 
         return {
-        recommendation: text.trim(),
-        confidence: 0.8
+            recommendation: text.trim(),
+            confidence: 0.8
         };
     }
 }

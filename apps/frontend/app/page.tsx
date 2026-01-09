@@ -2,8 +2,11 @@ import { fetchJSON } from "../lib/api";
 import Hero from "../components/hero";
 import GridCard from "@/components/GridCard";
 import Header from "../components/header";
+import { requireAuth } from "../lib/requireAuth";
 
 export default async function Dashboard() {
+  const user = await requireAuth();
+
   const visibility = await fetchJSON<any[]>(
     "/analytics/visibility"
   );
@@ -23,6 +26,10 @@ export default async function Dashboard() {
         <main className="p-6 space-y-6">
         <h1 className="text-2xl font-bold">
           AI Search Visibility Dashboard
+        </h1>
+
+        <h1 className="text-2xl font-bold">
+          Welcome, {user.email}
         </h1>
 
         <section>

@@ -10,8 +10,13 @@ const API_BASE =
 
 export async function fetchJSON<T>(path: string): Promise<T> {
     const res = await fetch(`${API_BASE}${path}`, {
-        cache: "no-store"
+        cache: "no-store",
+        credentials: "include"
     });
+
+    if (res.status === 401) {
+        throw new Error("Unauthorized");
+    }
 
     if (!res.ok) {
         throw new Error(`API error: ${res.status}`);

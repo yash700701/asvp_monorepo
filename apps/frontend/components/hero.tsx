@@ -3,7 +3,7 @@ import React from 'react'
 function Hero() {
     return (
         <div>
-            <section className="relative overflow-hidden bg-zinc-50 text-[#171717]">
+            <section className="relative overflow-hidden bg-[#E8E8E3] text-[#171717]">
                 <div className="max-w-7xl mx-auto px-6 py-24">
 
                     {/* Left */}

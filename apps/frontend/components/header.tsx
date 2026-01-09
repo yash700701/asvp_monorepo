@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Header() {
@@ -7,8 +8,8 @@ export default function Header() {
             
             {/* Logo + Company Name */}
             <Link href="/" className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-lg bg-black text-white flex items-center justify-center font-bold">
-                A
+            <div className="h-10 w-10 flex items-center justify-center">
+                <Image src="/logo.png" alt="Logo" width={50} height={50} />
             </div>
             <span className="text-4xl font-bold text-[#171717] tracking-tight">
                 VerityAI

@@ -2,7 +2,6 @@ import { Router } from "express";
 import { db } from "../db/client";
 import { getTemporalClient } from "../lib/temporalClient";
 import { frequencyToCron } from "../lib/cron";
-import { DEFAULT_CUSTOMER_ID } from "../config/customer";
 
 const router = Router();
 
@@ -19,7 +18,7 @@ router.post("/:id/auto-schedule", async (req, res) => {
         FROM queries
         WHERE id = $1 AND customer_id = $2
         `,
-        [queryId, DEFAULT_CUSTOMER_ID]
+        [queryId, req.user!.customer_id]
     );
 
     if (queryRes.rows.length === 0) {

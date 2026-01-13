@@ -34,16 +34,18 @@ router.get(
         res.cookie("auth_token", token, {
         httpOnly: true,
         secure: false, // true in prod
-        sameSite: "lax"
+        sameSite: "lax", // REQUIRED for cross-origin
         });
 
-        res.redirect(process.env.FRONTEND_URL!);
+        res.redirect("http://localhost:3000");
     }
 );
 
 // Current user
 router.get("/me", (req, res) => {
     const token = req.cookies?.auth_token;
+    console.log("Auth token from cookie:", req.cookies);
+    console.log("Auth token from cookie:", token);
     if (!token) return res.status(401).json({ error: "unauthorized" });
 
     try {

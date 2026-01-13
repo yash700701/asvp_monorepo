@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { db } from "../db/client";
-import { DEFAULT_CUSTOMER_ID } from "../config/customer";
 
 const router = Router();
 
@@ -13,7 +12,7 @@ const router = Router();
 router.get("/share-of-voice", async (req, res) => {
     const { from, to } = req.query;
 
-    const params: any[] = [DEFAULT_CUSTOMER_ID];
+    const params: any[] = [req.user!.customer_id];
     let dateFilter = "";
 
     if (from) {

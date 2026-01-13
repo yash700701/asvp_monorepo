@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import passport from "passport";
 import cookieParser from "cookie-parser";
-import "./auth/google";
+import "../auth/google";
 import healthRoute from "../routes/health";
 import brandsRoute from "../routes/brands";
 import queriesRoute from "../routes/queries";
@@ -17,7 +17,12 @@ import authRoutes from "../routes/auth";
 export const createApp = () => {
     const app = express();
 
-    app.use(cors());
+    app.use(
+        cors({
+            origin: "http://localhost:3000",
+            credentials: true,
+        })
+    );
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());

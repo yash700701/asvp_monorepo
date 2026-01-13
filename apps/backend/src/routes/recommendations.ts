@@ -1,10 +1,9 @@
 import { Router } from "express";
 import { db } from "../db/client";
-import { DEFAULT_CUSTOMER_ID } from "../config/customer";
 
 const router = Router();
 
-router.get("/", async (_req, res) => {
+router.get("/", async (req, res) => {
     const result = await db.query(
         `
         SELECT *
@@ -13,7 +12,7 @@ router.get("/", async (_req, res) => {
         AND resolved_at IS NULL
         ORDER BY priority DESC, created_at DESC
         `,
-        [DEFAULT_CUSTOMER_ID]
+        [req.user!.customer_id]
     );
 
     res.json(result.rows);

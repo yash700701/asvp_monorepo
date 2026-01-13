@@ -1,5 +1,12 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
+import path from "path";
+import dotenv from "dotenv";
+import { log } from "console";
+
+dotenv.config({
+    path: path.resolve(__dirname, "../../../../.env"),
+});
 
 export interface JwtUser {
     user_id: string;
@@ -14,6 +21,7 @@ export function requireAuth(
 ) {
     const token = req.cookies?.auth_token;
     if (!token) {
+        console.log("middleware error")
         return res.status(401).json({ error: "unauthenticated" });
     }
 
@@ -22,6 +30,8 @@ export function requireAuth(
         token,
         process.env.JWT_SECRET!
         ) as Express.User;
+
+        console.log("Decoded user in middleware:", decoded);
 
         req.user = decoded;
         next();

@@ -7,7 +7,7 @@ export default function GridCard() {
         {
         src: "/logo_with_bg.png",
         alt: "Illustrations by my fav AarzooAly",
-        code: "# 23",
+        code: "# wkdjwq we  wfef kwef wejf wjehf wehfe wfh efhwe fjhwefkjw fkwe fke fkjwefg kwfgqwefgkew fgkwefgwe fgwef wefw fkwfwef e",
         },
         {
         src: "/logo_with_bg.png",

@@ -1,26 +1,34 @@
 "use client";
 
-const API_BASE =
-    process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+import axios from "axios";
+
+// Axios instance for same-origin (Next.js BFF)
+const api = axios.create({
+  withCredentials: true, // send cookies
+});
 
 export async function getCurrentUser() {
-    const res = await fetch(`${API_BASE}/api/auth/me`, {
-        credentials: "include",
-        cache: "no-store"
-    });
+    try {
+        const res = await api.get("/api/backend/me", {
+        headers: {
+            "Cache-Control": "no-store",
+        },
+        });
 
-    console.log("getCurrentUser response status:", res);
-    if (!res.ok) return null;
-    return res.json();
+        console.log("getCurrentUser response status:", res.status);
+        return res.data;
+    } catch (err: any) {
+        if (err.response?.status === 401) {
+        return null;
+        }
+        throw err;
+    }
 }
 
 export function loginWithGoogle() {
-    window.location.href = `${API_BASE}/auth/google`;
+    window.location.href = "/api/auth/google";
 }
 
 export async function logout() {
-    await fetch(`${API_BASE}/auth/logout`, {
-        method: "POST",
-        credentials: "include"
-    });
+    await api.post("/api/auth/logout");
 }

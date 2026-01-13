@@ -59,7 +59,7 @@ const HoverExpand_001 = ({
                         exit={{ opacity: 0 }}
                         className="absolute flex h-full w-full flex-col items-end justify-end p-4"
                     >
-                        <p className="text-left text-xs text-white/50">
+                        <p className="text-left text-sm text-white">
                         {image.code}
                         </p>
                     </motion.div>

@@ -40,8 +40,8 @@ passport.use(
             `
             INSERT INTO users (email, name, provider, provider_id, customer_id)
             VALUES ($1, $2, 'google', $3, $4)
-            ON CONFLICT (email)
-            DO UPDATE SET provider_id = EXCLUDED.provider_id
+            ON CONFLICT (provider, provider_id)
+            DO UPDATE SET email = EXCLUDED.email, name = EXCLUDED.name, customer_id = EXCLUDED.customer_id
             RETURNING *
             `,
             [email, profile.displayName, profile.id, customerId]

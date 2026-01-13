@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { db } from "../db/client";
-import { DEFAULT_CUSTOMER_ID } from "../config/customer";
 
 const router = Router();
 
@@ -39,7 +38,7 @@ router.post("/", async (req, res) => {
         VALUES ($1, $2, $3, $4)
         RETURNING *
         `,
-        [DEFAULT_CUSTOMER_ID, query_text, query_type, frequency]
+        [req.user!.customer_id, query_text, query_type, frequency]
         );
 
         res.status(201).json(result.rows[0]);
@@ -52,7 +51,7 @@ router.post("/", async (req, res) => {
 /**
  * GET /queries
  */
-router.get("/", async (_req, res) => {
+router.get("/", async (req, res) => {
     const result = await db.query(
         `
         SELECT *
@@ -60,7 +59,7 @@ router.get("/", async (_req, res) => {
         WHERE customer_id = $1
         ORDER BY created_at DESC
         `,
-        [DEFAULT_CUSTOMER_ID]
+        [req.user!.customer_id]
     );
 
     res.json(result.rows);
@@ -78,7 +77,7 @@ router.get("/:id", async (req, res) => {
         FROM queries
         WHERE id = $1 AND customer_id = $2
         `,
-        [id, DEFAULT_CUSTOMER_ID]
+        [id, req.user!.customer_id]
     );
 
     if (result.rows.length === 0) {
@@ -100,7 +99,7 @@ router.delete("/:id", async (req, res) => {
         WHERE id = $1 AND customer_id = $2
         RETURNING id
         `,
-        [id, DEFAULT_CUSTOMER_ID]
+        [id, req.user!.customer_id]
     );
 
     if (result.rows.length === 0) {

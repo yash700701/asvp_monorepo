@@ -111,6 +111,9 @@ importers:
 
   apps/frontend:
     dependencies:
+      axios:
+        specifier: ^1.13.2
+        version: 1.13.2
       framer-motion:
         specifier: ^12.23.26
         version: 12.24.12(react-dom@19.2.3(react@19.2.3))(react@19.2.3)

@@ -1,26 +1,45 @@
-import { fetchJSON } from "../lib/api";
+"use client"
+
+import { useEffect, useState } from "react";
 import Hero from "../components/hero";
 import GridCard from "@/components/GridCard";
 import Header from "../components/header";
 import { requireAuth } from "../lib/requireAuth";
+import api from "../lib/axios";
 
-export default async function Dashboard() {
-  const user = await requireAuth();
+export default function Dashboard() {
+  // const user = await requireAuth();
 
-  const visibility = await fetchJSON<any[]>(
-    "/analytics/visibility"
-  );
+  const [visibility, setVisibility] = useState<any[]>([]);
+  const [sov, setSov] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const sov = await fetchJSON<any[]>(
-    "/analytics/share-of-voice"
-  );
+  useEffect(() => {
+    async function load() {
+      try {
+        const [visibilityRes, sovRes] = await Promise.all([
+          api.get("/analytics/visibility"),
+          api.get("/analytics/share-of-voice"),
+        ]);
+
+        setVisibility(visibilityRes.data);
+        setSov(sovRes.data);
+      } catch (err) {
+        console.error("Failed to load dashboard", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
 
   return (
     
     <main className="">
       <Header />
       <Hero />
-      {/* <GridCard /> */}
+      <GridCard />
 
       <div className="">
         <main className="p-6 space-y-6">
@@ -29,7 +48,7 @@ export default async function Dashboard() {
         </h1>
 
         <h1 className="text-2xl font-bold">
-          Welcome, {user.email}
+          {/* Welcome, {user.email} */}
         </h1>
 
         <section>

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { db } from "../db/client";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
@@ -9,7 +10,7 @@ const router = Router();
  *   from?: ISO date
  *   to?: ISO date
  */
-router.get("/share-of-voice", async (req, res) => {
+router.get("/share-of-voice", requireAuth, async (req, res) => {
     const { from, to } = req.query;
 
     const params: any[] = [req.user!.customer_id];

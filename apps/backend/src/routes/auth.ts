@@ -28,16 +28,16 @@ router.get(
     }),
     (req, res) => {
         const user = req.user as any;
-
         const token = signJWT(user);
 
-        res.cookie("auth_token", token, {
-        httpOnly: true,
-        secure: false, // true in prod
-        sameSite: "lax", // REQUIRED for cross-origin
-        });
+        // res.cookie("auth_token", token, {
+        // httpOnly: true,
+        // secure: true, // true in prod
+        // sameSite: "none", // REQUIRED for cross-origin
+        // path: "/",
+        // });
 
-        res.redirect("http://localhost:3000");
+        res.redirect(`http://localhost:3000/api/auth/callback?token=${token}`);
     }
 );
 

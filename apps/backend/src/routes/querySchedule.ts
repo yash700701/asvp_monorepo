@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { db } from "../db/client";
 import { getTemporalClient } from "../lib/temporalClient";
+import { requireAuth } from "../middleware/requireAuth";        
 
 const router = Router();
 
@@ -8,7 +9,7 @@ const router = Router();
  * POST /queries/:id/schedule
  * Manually trigger a Temporal workflow for a query
  */
-router.post("/:id/schedule", async (req, res) => {
+router.post("/:id/schedule", requireAuth, async (req, res) => {
     const { id: queryId } = req.params;
 
     // Verify query exists

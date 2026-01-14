@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { db } from "../db/client";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
@@ -11,7 +12,7 @@ const router = Router();
  *   frequency?: "daily" | "weekly" | "manual"
  * }
  */
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
     const { query_text, query_type, frequency = "daily" } = req.body;
 
     if (!query_text || !query_type) {
@@ -51,7 +52,7 @@ router.post("/", async (req, res) => {
 /**
  * GET /queries
  */
-router.get("/", async (req, res) => {
+router.get("/", requireAuth, async (req, res) => {
     const result = await db.query(
         `
         SELECT *
@@ -68,7 +69,7 @@ router.get("/", async (req, res) => {
 /**
  * GET /queries/:id
  */
-router.get("/:id", async (req, res) => {
+router.get("/:id", requireAuth, async (req, res) => {
     const { id } = req.params;
 
     const result = await db.query(
@@ -90,7 +91,7 @@ router.get("/:id", async (req, res) => {
 /**
  * DELETE /queries/:id
  */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
     const { id } = req.params;
 
     const result = await db.query(

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { db } from "../db/client";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
@@ -7,7 +8,7 @@ const router = Router();
  * POST /brands
  * body: { brand_name: string, canonical_urls: string[] }
  */
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
     const { brand_name, canonical_urls } = req.body;
 
     if (!brand_name || !Array.isArray(canonical_urls)) {
@@ -37,7 +38,7 @@ router.post("/", async (req, res) => {
 /**
  * GET /brands
  */
-router.get("/", async (req, res) => {
+router.get("/", requireAuth, async (req, res) => {
     const result = await db.query(
         `
         SELECT * FROM brands
@@ -53,7 +54,7 @@ router.get("/", async (req, res) => {
 /**
  * GET /brands/:id
  */
-router.get("/:id", async (req, res) => {
+router.get("/:id", requireAuth, async (req, res) => {
     const { id } = req.params;
 
     const result = await db.query(
@@ -74,7 +75,7 @@ router.get("/:id", async (req, res) => {
 /**
  * DELETE /brands/:id
  */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
     const { id } = req.params;
 
     const result = await db.query(

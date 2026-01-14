@@ -32,7 +32,6 @@ export function requireAuth(
         ) as Express.User;
 
         console.log("Decoded user in middleware:", decoded);
-
         req.user = decoded;
         next();
     } catch {

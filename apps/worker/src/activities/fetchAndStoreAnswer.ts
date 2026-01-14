@@ -5,7 +5,7 @@ export async function fetchAndStoreAnswer(input: {
     queryId: string;
     sourceId: string;
 }) {
-  // Get query text
+    // Get query text
     const queryRes = await db.query(
         `
         SELECT q.query_text, s.type AS source_type

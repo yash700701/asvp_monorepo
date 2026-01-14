@@ -1,7 +1,10 @@
+"use client"
+
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "./ui/shadcn/button";
 
-// Reusable NavLink (simple version)
 function NavLink({
     href,
     children,
@@ -20,6 +23,7 @@ function NavLink({
 }
 
 export default function Header() {
+    const router = useRouter();
     return (
         <header className="w-full border-b bg-[#E8E8E3]/20 backdrop-blur-md fixed top-0 z-50">
         <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
@@ -52,12 +56,12 @@ export default function Header() {
                 Sign in
             </Link>
 
-            <Link
-                href="/get-started"
-                className="rounded-lg bg-black px-5 py-2 text-sm font-semibold text-white hover:bg-gray-900 transition"
+            <Button
+                onClick={() => router.push("/dashboard")}
+                className="rounded-lg cursor-pointer bg-black px-5 py-2 text-sm font-semibold text-white hover:bg-gray-900 transition"
             >
                 Get Started
-            </Link>
+            </Button>
             </div>
         </div>
         </header>

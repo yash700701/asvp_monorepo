@@ -1,6 +1,10 @@
+"use client"
+
 import React from 'react'
+import { useRouter } from "next/navigation";
 
 function Hero() {
+    const router = useRouter();
     return (
         <div>
             <section className="relative overflow-hidden bg-[#E8E8E3] text-[#171717]">
@@ -17,10 +21,10 @@ function Hero() {
                     </p>
 
                     <div className="mt-10 flex gap-4">
-                        <button className="px-6 py-3 bg-[#44413E] hover:bg-[#171717] text-zinc-50 rounded-xl font-semibold">
-                        Get Demo
+                        <button onClick={() => router.push("/dashboard")} className="px-6 py-3 cursor-pointer bg-[#44413E] hover:bg-[#171717] text-zinc-50 rounded-xl font-semibold">
+                        Get Started
                         </button>
-                        <button className="px-6 py-3 border border-gray-600 rounded-xl">
+                        <button className="px-6 py-3 cursor-pointer border border-gray-600 rounded-xl">
                         See How It Works →
                         </button>
                     </div>

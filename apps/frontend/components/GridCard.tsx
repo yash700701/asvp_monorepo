@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { HoverExpand_001 } from "./ui/skiper-ui/skiper52"
+import { HoverExpand_001 } from "./ui/skiper/skiper52"
 
 export default function GridCard() {
 

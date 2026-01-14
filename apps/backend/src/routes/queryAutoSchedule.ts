@@ -2,13 +2,14 @@ import { Router } from "express";
 import { db } from "../db/client";
 import { getTemporalClient } from "../lib/temporalClient";
 import { frequencyToCron } from "../lib/cron";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
 /**
  * POST /queries/:id/auto-schedule
  */
-router.post("/:id/auto-schedule", async (req, res) => {
+router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
     const { id: queryId } = req.params;
 
     // Fetch query

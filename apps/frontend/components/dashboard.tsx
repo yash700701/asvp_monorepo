@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Hero from "../components/hero";
 import GridCard from "@/components/GridCard";
 import Header from "../components/header";
+import PricingSection from "../components/SubscriptionPlans";
 import api from "../lib/axios";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -43,6 +44,7 @@ export default function Dashboard() {
         <Header />
         <Hero />
         <GridCard />
+            <PricingSection />
 
         <div className="">
             <main className="p-6 space-y-6">

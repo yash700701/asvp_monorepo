@@ -13,9 +13,9 @@ CREATE INDEX IF NOT EXISTS idx_alerts_customer ON alerts(customer_id);
 CREATE INDEX IF NOT EXISTS idx_alerts_created ON alerts(created_at);
 
 
-ALTER TABLE alerts ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE alerts ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY alerts_isolation
-ON alerts
-USING (customer_id::text = current_setting('app.customer_id', true))
-WITH CHECK (customer_id::text = current_setting('app.customer_id', true));
+-- CREATE POLICY alerts_isolation
+-- ON alerts
+-- USING (customer_id::text = current_setting('app.customer_id', true))
+-- WITH CHECK (customer_id::text = current_setting('app.customer_id', true));

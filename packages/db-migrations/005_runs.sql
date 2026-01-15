@@ -13,10 +13,10 @@ CREATE INDEX IF NOT EXISTS idx_runs_source_id ON runs(source_id);
 CREATE INDEX IF NOT EXISTS idx_runs_started_at ON runs(started_at);
 
 
-ALTER TABLE runs ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE runs ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY runs_isolation
-ON runs
-USING (customer_id::text = current_setting('app.customer_id', true))
-WITH CHECK (customer_id::text = current_setting('app.customer_id', true));
+-- CREATE POLICY runs_isolation
+-- ON runs
+-- USING (customer_id::text = current_setting('app.customer_id', true))
+-- WITH CHECK (customer_id::text = current_setting('app.customer_id', true));
 

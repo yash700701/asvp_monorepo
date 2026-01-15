@@ -10,9 +10,9 @@ CREATE TABLE IF NOT EXISTS brands (
 CREATE INDEX IF NOT EXISTS idx_brands_customer_id ON brands(customer_id);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_customer_brand ON brands(customer_id, brand_name);
 
-ALTER TABLE brands ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE brands ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY brands_isolation
-ON brands
-USING (customer_id::text = current_setting('app.customer_id', true))
-WITH CHECK (customer_id::text = current_setting('app.customer_id', true));
+-- CREATE POLICY brands_isolation
+-- ON brands
+-- USING (customer_id::text = current_setting('app.customer_id', true))
+-- WITH CHECK (customer_id::text = current_setting('app.customer_id', true));

@@ -11,3 +11,10 @@ CREATE TABLE IF NOT EXISTS queries (
 CREATE INDEX IF NOT EXISTS idx_queries_customer_id ON queries(customer_id);
 CREATE INDEX IF NOT EXISTS idx_queries_type ON queries(query_type);
 
+ALTER TABLE queries
+ADD COLUMN IF NOT EXISTS brand_id UUID REFERENCES brands(id);
+
+CREATE INDEX IF NOT EXISTS idx_queries_brand
+ON queries(brand_id);
+
+

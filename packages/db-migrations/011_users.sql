@@ -17,3 +17,10 @@ ON users(email);
 
 CREATE INDEX IF NOT EXISTS idx_users_customer
 ON users(customer_id);
+
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY users_isolation
+ON users
+USING (customer_id::text = current_setting('app.customer_id', true))
+WITH CHECK (customer_id::text = current_setting('app.customer_id', true));

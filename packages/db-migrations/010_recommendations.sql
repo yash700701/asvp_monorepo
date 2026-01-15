@@ -13,3 +13,11 @@ CREATE TABLE IF NOT EXISTS recommendations (
 
 CREATE INDEX IF NOT EXISTS idx_recs_customer ON recommendations(customer_id);
 CREATE INDEX IF NOT EXISTS idx_recs_created ON recommendations(created_at);
+
+
+ALTER TABLE recommendations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY recommendations_isolation
+ON recommendations
+USING (customer_id::text = current_setting('app.customer_id', true))
+WITH CHECK (customer_id::text = current_setting('app.customer_id', true));

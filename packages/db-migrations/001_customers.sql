@@ -8,3 +8,9 @@ CREATE TABLE IF NOT EXISTS customers (
 );
 
 CREATE INDEX IF NOT EXISTS idx_customers_plan ON customers(plan);
+
+ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY customers_self
+ON customers
+USING (id::text = current_setting('app.customer_id', true));

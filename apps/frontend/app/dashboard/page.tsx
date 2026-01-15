@@ -8,13 +8,13 @@ export default async function DashboardPage() {
     const token = cookieStore.get("auth_token")?.value;
 
     if (!token) {
-        redirect("/login");
+        redirect("/signin");
     }
 
     try {
         jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!);
     } catch {
-        redirect("/login");
+        redirect("/signin");
     }
 
     return <Dashboard />;

@@ -4,11 +4,11 @@ export async function GET(req: NextRequest) {
     const token = req.nextUrl.searchParams.get("token");
 
     if (!token) {
-        return NextResponse.redirect("/login");
+        return NextResponse.redirect("/signin");
     }
 
     const res = NextResponse.redirect(
-        new URL("/", req.url)
+        new URL("/dashboard", req.url)
     );
 
     // Cookie is now set by Next.js (same origin)

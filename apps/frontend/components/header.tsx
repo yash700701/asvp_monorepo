@@ -38,15 +38,6 @@ export default function Header() {
             </span>
             </Link>
 
-            {/* Center: Navigation */}
-            <nav className="hidden md:flex items-center gap-6">
-            <NavLink href="/">Overview</NavLink>
-            <NavLink href="/analytics/visibility">Visibility</NavLink>
-            <NavLink href="/analytics/share-of-voice">Share of Voice</NavLink>
-            <NavLink href="/alerts">Alerts</NavLink>
-            <NavLink href="/recommendations">Recommendations</NavLink>
-            </nav>
-
             {/* Right: Actions */}
             <div className="flex items-center gap-4">
             <Link

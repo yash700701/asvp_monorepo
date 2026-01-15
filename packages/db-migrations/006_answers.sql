@@ -13,9 +13,9 @@ ADD COLUMN IF NOT EXISTS mentions_brand BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS confidence REAL,
 ADD COLUMN IF NOT EXISTS parsed_at TIMESTAMPTZ;
 
-ALTER TABLE answers ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE answers ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY answers_isolation
-ON answers
-USING (customer_id::text = current_setting('app.customer_id', true))
-WITH CHECK (customer_id::text = current_setting('app.customer_id', true));
+-- CREATE POLICY answers_isolation
+-- ON answers
+-- USING (customer_id::text = current_setting('app.customer_id', true))
+-- WITH CHECK (customer_id::text = current_setting('app.customer_id', true));

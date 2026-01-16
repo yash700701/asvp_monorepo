@@ -9,11 +9,13 @@ export default function NewBrandPage() {
   const [urls, setUrls] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const router = useRouter();
 
   async function submit() {
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
     try {
@@ -33,12 +35,17 @@ export default function NewBrandPage() {
           },
         }
       );
-        
-        console.log("Brand created:", res.data);
 
-    //   router.push("/");
+      // ✅ Success handling
+      setSuccess("Brand added successfully");
+      setName("");
+      setUrls("");
+
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
     } catch (err: any) {
-      // Axios error handling
       if (axios.isAxiosError(err)) {
         setError(
           err.response?.data?.error || err.response?.data?.message || "Failed to create brand"
@@ -55,6 +62,14 @@ export default function NewBrandPage() {
     <main className="p-6 max-w-xl space-y-4">
       <h1 className="text-xl font-bold">Add Brand</h1>
 
+      {/* ✅ Success message */}
+      {success && (
+        <div className="rounded border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-700">
+          {success}
+        </div>
+      )}
+
+      {/* ❌ Error message */}
       {error && (
         <div className="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}

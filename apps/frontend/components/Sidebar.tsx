@@ -6,7 +6,7 @@ import { BarChart, Search, Settings, Menu } from "lucide-react";
 
 const items = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart },
-  { name: "Add Brand", href: "/dashboard/brands", icon: BarChart },
+  { name: "Brands", href: "/dashboard/brands", icon: BarChart },
   { name: "Queries", href: "/dashboard/queries", icon: Search },
   { name: "Analytics", href: "/dashboard/analytics", icon: BarChart },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },

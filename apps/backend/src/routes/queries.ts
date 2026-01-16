@@ -13,10 +13,10 @@ const router = Router();
  * }
  */
 router.post("/", requireAuth, async (req, res) => {
-    const { query_text, query_type, frequency = "daily" } = req.body;
+    const { brand_id, query_text, query_type, frequency = "daily" } = req.body;
 
-    if (!query_text || !query_type) {
-        return res.status(400).json({ error: "query_text and query_type are required" });
+    if (!brand_id || !query_text || !query_type) {
+        return res.status(400).json({ error: "brand_id, query_text and query_type are required" });
     }
 
     if (!["brand", "category", "competitor"].includes(query_type)) {
@@ -32,14 +32,15 @@ router.post("/", requireAuth, async (req, res) => {
         `
         INSERT INTO queries (
             customer_id,
+            brand_id,
             query_text,
             query_type,
             frequency
         )
-        VALUES ($1, $2, $3, $4)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING *
         `,
-        [req.user!.customer_id, query_text, query_type, frequency]
+        [req.user!.customer_id, brand_id, query_text, query_type, frequency]
         );
 
         res.status(201).json(result.rows[0]);
@@ -52,19 +53,61 @@ router.post("/", requireAuth, async (req, res) => {
 /**
  * GET /queries
  */
-router.get("/", requireAuth, async (req, res) => {
-    const result = await db.query(
-        `
-        SELECT *
-        FROM queries
-        WHERE customer_id = $1
-        ORDER BY created_at DESC
-        `,
-        [req.user!.customer_id]
-    );
+// router.get("/", requireAuth, async (req, res) => {
+//     const result = await db.query(
+//         `
+//         SELECT *
+//         FROM queries
+//         WHERE customer_id = $1
+//         ORDER BY created_at DESC
+//         `,
+//         [req.user!.customer_id]
+//     );
 
-    res.json(result.rows);
+//     res.json(result.rows);
+// });
+
+/**
+ * GET /queries?brand_id=
+ */
+router.get("/", requireAuth, async (req, res) => {
+    const { brand_id } = req.query;
+
+    try {
+        let result;
+
+        if (brand_id) {
+        // Fetch queries for a specific brand
+        result = await db.query(
+            `
+            SELECT id, query_text, frequency, brand_id
+            FROM queries
+            WHERE brand_id = $1
+            AND customer_id = $2
+            ORDER BY created_at DESC
+            `,
+            [brand_id, req.user!.customer_id]
+        );
+        } else {
+        // Fetch all queries for the customer
+        result = await db.query(
+            `
+            SELECT id, query_text, frequency, brand_id
+            FROM queries
+            WHERE customer_id = $1
+            ORDER BY created_at DESC
+            `,
+            [req.user!.customer_id]
+        );
+        }
+
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Failed to fetch queries:", err);
+        res.status(500).json({ error: "Internal server error" });
+    }
 });
+
 
 /**
  * GET /queries/:id

@@ -80,7 +80,7 @@ router.get("/", requireAuth, async (req, res) => {
         // Fetch queries for a specific brand
         result = await db.query(
             `
-            SELECT id, query_text, frequency, brand_id
+            SELECT id, query_text, frequency, brand_id, query_type, created_at, is_active
             FROM queries
             WHERE brand_id = $1
             AND customer_id = $2
@@ -91,13 +91,13 @@ router.get("/", requireAuth, async (req, res) => {
         } else {
         // Fetch all queries for the customer
         result = await db.query(
-            `
-            SELECT id, query_text, frequency, brand_id
+          `
+            SELECT id, query_text, frequency, brand_id, query_type, created_at, is_active
             FROM queries
             WHERE customer_id = $1
             ORDER BY created_at DESC
             `,
-            [req.user!.customer_id]
+          [req.user!.customer_id]
         );
         }
 

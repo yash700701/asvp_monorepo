@@ -10,6 +10,9 @@ type Query = {
   query_text: string;
   frequency: string;
   brand_id: string;
+  query_type: "brand" | "category" | "competitor";
+  created_at: string;
+  is_active: boolean;
 };
 
 export default function NewQueryPage() {
@@ -28,6 +31,7 @@ export default function NewQueryPage() {
   const [queriesLoading, setQueriesLoading] = useState(false);
   const [queryError, setQueryError] = useState<string | null>(null);
   const [filterBrandId, setFilterBrandId] = useState("");
+  const [activatingId, setActivatingId] = useState<string | null>(null);
 
   /* ---------- UX ---------- */
   const [error, setError] = useState<string | null>(null);
@@ -107,6 +111,31 @@ export default function NewQueryPage() {
       }
     } finally {
       setLoading(false);
+    }
+  }
+
+  /* ---------- Activate query ---------- */
+  async function activateQuery(queryId: string) {
+    setActivatingId(queryId);
+
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/auto-schedule`,
+        {},
+        { withCredentials: true }
+      );
+
+      // refresh queries
+      const url = filterBrandId
+        ? `${process.env.NEXT_PUBLIC_API_BASE}/queries?brand_id=${filterBrandId}`
+        : `${process.env.NEXT_PUBLIC_API_BASE}/queries`;
+
+      const res = await axios.get(url, { withCredentials: true });
+      setQueries(res.data);
+    } catch (err: any) {
+      alert(err.response?.data?.error || err.response?.data?.message || "Failed to activate query");
+    } finally {
+      setActivatingId(null);
     }
   }
 
@@ -220,13 +249,37 @@ export default function NewQueryPage() {
           {!queriesLoading && queries.length === 0 && (
             <p className="p-4 text-sm text-gray-500">No queries found</p>
           )}
+          {queryError && (
+            <p className="p-4 text-sm text-red-500">Error loading queries: {queryError}</p>
+          )}
 
           {queries.map((q) => (
-            <div key={q.id} className="p-4 text-sm">
-              <div className="font-medium">{q.query_text}</div>
-              <div className="text-xs text-gray-500">
-                {q.frequency} · Brand ID: {q.brand_id}
+            <div key={q.id} className="p-4 text-sm flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{q.query_text}</span>
+
+                  {q.is_active && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                      Active
+                    </span>
+                  )}
+                </div>
+
+                <div className="text-xs text-gray-500 mt-1">
+                  {q.frequency} · {q.query_type}
+                </div>
               </div>
+
+              {!q.is_active && (
+                <button
+                  onClick={() => activateQuery(q.id)}
+                  disabled={activatingId === q.id}
+                  className="text-xs px-3 py-1 rounded border border-black hover:bg-black hover:text-white transition disabled:opacity-50"
+                >
+                  {activatingId === q.id ? "Activating..." : "Activate"}
+                </button>
+              )}
             </div>
           ))}
         </div>

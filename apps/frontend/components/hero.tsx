@@ -8,15 +8,15 @@ function Hero() {
     return (
         <div>
             <section className="relative overflow-hidden bg-[#E8E8E3] text-[#171717]">
-                <div className="max-w-7xl mx-auto px-6 py-24">
+                <div className="max-w-7xl mx-auto px-3 sm:px-6 py-24">
 
                     {/* Left */}
                     <div>
-                    <h1 className="text-9xl leading-28 font-extrabold">
+                    <h1 className="text-8xl leading-20 sm:text-9xl sm:leading-28 font-extrabold">
                         If AI Doesn’t Mention You, <span className='text-[#44413E]'>You Don’t Exist.</span>
                     </h1>
 
-                    <p className="mt-6 text-3xl text-zinc-700">
+                    <p className="mt-6 text-xl sm:text-3xl text-zinc-700">
                         VerityAI reveals how AI models talk about your brand—and what to fix when competitors take your place.
                     </p>
 

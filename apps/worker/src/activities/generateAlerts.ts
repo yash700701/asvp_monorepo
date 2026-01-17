@@ -39,7 +39,7 @@ export async function generateSoVDropAlerts(input: {
 
     for (const row of res.rows) {
         await db.query(
-        `
+            `
         INSERT INTO alerts (
             customer_id,
             source_id,
@@ -49,11 +49,11 @@ export async function generateSoVDropAlerts(input: {
         )
         VALUES ($1, $2, 'sov_drop', 'high', $3)
         `,
-        [
-            input.customerId,
-            row.source_id,
-            `Share-of-Voice dropped by ${(row.drop * 100).toFixed(1)}%`
-        ]
+            [
+                input.customerId,
+                row.source_id,
+                `Share-of-Voice dropped by ${(row.drop * 100).toFixed(1)}%`
+            ]
         );
     }
 }

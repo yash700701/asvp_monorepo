@@ -237,7 +237,7 @@ export default function NewQueryPage() {
     }
 
     return (
-        <main className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <main className="pt-28 sm:pt-0 grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* ================= LEFT: FORM ================= */}
             <section className="space-y-4">
                 <h1 className="text-xl font-bold">Add Query</h1>

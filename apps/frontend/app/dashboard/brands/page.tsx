@@ -59,7 +59,7 @@ export default function NewBrandPage() {
   }
 
   return (
-    <main className="p-6 max-w-xl space-y-4">
+    <main className="pt-28 sm:pt-0 max-w-xl space-y-2">
       <h1 className="text-xl font-bold">Add Brand</h1>
 
       {/* ✅ Success message */}

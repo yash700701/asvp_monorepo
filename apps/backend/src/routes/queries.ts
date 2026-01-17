@@ -66,7 +66,7 @@ router.get("/", requireAuth, async (req, res) => {
             // Fetch queries for a specific brand
             result = await db.query(
                 `
-            SELECT id, query_text, frequency, brand_id, query_type, created_at, is_active
+            SELECT id, query_text, frequency, brand_id, query_type, created_at, is_active, is_paused
             FROM queries
             WHERE brand_id = $1
             AND customer_id = $2
@@ -78,7 +78,7 @@ router.get("/", requireAuth, async (req, res) => {
             // Fetch all queries for the customer
             result = await db.query(
                 `
-            SELECT id, query_text, frequency, brand_id, query_type, created_at, is_active
+            SELECT id, query_text, frequency, brand_id, query_type, created_at, is_active, is_paused
             FROM queries
             WHERE customer_id = $1
             ORDER BY created_at DESC
@@ -300,59 +300,75 @@ router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
  * Stop cron execution of a query
  */
 router.post("/:id/unschedule", requireAuth, async (req, res) => {
-    const { id: queryId } = req.params;
+    const queryId = req.params.id;
 
-    // Fetch query & ownership
-    const queryRes = await db.query(
+    // Fetch query + schedule (LEFT JOIN is critical)
+    const result = await db.query(
         `
-        SELECT id, is_active, schedule_id
-        FROM queries
-        WHERE id = $1 AND customer_id = $2
+        SELECT
+        q.id,
+        q.is_active,
+        q.schedule_id,
+        qs.workflow_id
+        FROM queries q
+        JOIN query_schedules qs
+        ON qs.id = q.schedule_id
+        WHERE q.id = $1::uuid
+        AND q.customer_id = $2::uuid
         `,
         [queryId, req.user!.customer_id]
     );
 
-    if (queryRes.rows.length === 0) {
+    if (result.rows.length === 0) {
         return res.status(404).json({ error: "Query not found" });
     }
 
-    const query = queryRes.rows[0];
+    const query = result.rows[0];
 
-    if (!query.is_active || !query.schedule_id) {
+    if (!query.is_active || !query.workflow_id) {
         return res.status(400).json({ error: "Query is not scheduled" });
     }
 
-    const scheduleId = query.schedule_id;
+    const { workflow_id, schedule_id } = result.rows[0];
 
-    // Delete Temporal schedule
+    // TERMINATE Temporal workflow
     try {
         const temporal = await getTemporalClient();
-        const handle = temporal.schedule.getHandle(scheduleId);
-        await handle.delete();
+        const handle = temporal.workflow.getHandle(workflow_id);
+        await handle.terminate("Query unscheduled by user");
     } catch (err: any) {
-        // Schedule might already be deleted → still clean DB
-        console.warn("Temporal schedule delete failed:", err.message);
+        if (!err.message?.includes("NOT_FOUND")) {
+            console.error("Temporal terminate failed:", err);
+            return res.status(500).json({ error: "Failed to stop workflow" });
+        }
     }
 
-    // Update DB state
+    // Update DB (queries)
     await db.query(
         `
         UPDATE queries
-        SET is_active = false,
-            schedule_id = NULL
-        WHERE id = $1
+        SET
+        is_active = false,
+        is_paused = false,
+        schedule_id = NULL
+        WHERE id = $1::uuid
         `,
         [queryId]
     );
 
-    res.json({
-        message: "Query unscheduled successfully",
-    });
+    // Delete schedule row 
+    await db.query(
+        `
+    DELETE FROM query_schedules
+    WHERE workflow_id = $1
+    `,
+        [query.workflow_id]
+    );
+
+    res.json({ message: "Query unscheduled successfully" });
 });
 
-/**
- * POST /queries/:id/pause
- */
+// POST /queries/:id/pause
 router.post("/:id/pause", requireAuth, async (req, res) => {
     const { id: queryId } = req.params;
 

@@ -372,30 +372,34 @@ router.post("/:id/unschedule", requireAuth, async (req, res) => {
 router.post("/:id/pause", requireAuth, async (req, res) => {
     const { id: queryId } = req.params;
 
-    const queryRes = await db.query(
+    const result = await db.query(
         `
-        SELECT id, is_active, schedule_id
-        FROM queries
-        WHERE id = $1 AND customer_id = $2
+        SELECT qs.workflow_id, q.is_active, q.schedule_id
+        FROM queries q
+        JOIN query_schedules qs ON qs.id = q.schedule_id
+        WHERE q.id = $1::uuid
+        AND q.customer_id = $2::uuid
+        AND q.is_active = true
         `,
         [queryId, req.user!.customer_id]
     );
 
-    if (queryRes.rows.length === 0) {
+    if (result.rows.length === 0) {
         return res.status(404).json({ error: "Query not found" });
     }
 
-    const query = queryRes.rows[0];
-
+    const query = result.rows[0];
     if (!query.is_active || !query.schedule_id) {
         return res.status(400).json({ error: "Query is not scheduled" });
     }
 
+    const { workflow_id } = result.rows[0];
+
     try {
         const temporal = await getTemporalClient();
-        const handle = temporal.schedule.getHandle(query.schedule_id);
+        const handle = temporal.workflow.getHandle(workflow_id);
 
-        await handle.pause("Paused by user");
+        await handle.signal("pause");
     } catch (err: any) {
         console.error("Failed to pause schedule:", err);
         return res.status(500).json({ error: "Failed to pause schedule" });
@@ -404,10 +408,10 @@ router.post("/:id/pause", requireAuth, async (req, res) => {
     // Update DB
     await db.query(
         `
-    UPDATE queries
-    SET is_paused = true
-    WHERE id = $1
-    `,
+        UPDATE queries
+        SET is_paused = true
+        WHERE id = $1
+        `,
         [queryId]
     );
 
@@ -422,30 +426,35 @@ router.post("/:id/pause", requireAuth, async (req, res) => {
 router.post("/:id/resume", requireAuth, async (req, res) => {
     const { id: queryId } = req.params;
 
-    const queryRes = await db.query(
+    const result = await db.query(
         `
-        SELECT id, is_active, schedule_id
-        FROM queries
-        WHERE id = $1 AND customer_id = $2
+        SELECT qs.workflow_id, q.is_active, q.schedule_id
+        FROM queries q
+        JOIN query_schedules qs ON qs.id = q.schedule_id
+        WHERE q.id = $1::uuid
+        AND q.customer_id = $2::uuid
+        AND q.is_active = true
         `,
         [queryId, req.user!.customer_id]
     );
 
-    if (queryRes.rows.length === 0) {
+    if (result.rows.length === 0) {
         return res.status(404).json({ error: "Query not found" });
     }
 
-    const query = queryRes.rows[0];
+    const query = result.rows[0];
 
     if (!query.is_active || !query.schedule_id) {
         return res.status(400).json({ error: "Query is not scheduled" });
     }
 
+    const { workflow_id } = result.rows[0];
+
     try {
         const temporal = await getTemporalClient();
-        const handle = temporal.schedule.getHandle(query.schedule_id);
+        const handle = temporal.workflow.getHandle(workflow_id);
 
-        await handle.unpause();
+        await handle.signal("resume");
     } catch (err: any) {
         console.error("Failed to resume schedule:", err);
         return res.status(500).json({ error: "Failed to resume schedule" });

@@ -26,6 +26,11 @@ ON queries(is_active);
 
 ALTER TABLE queries ADD COLUMN is_paused boolean DEFAULT false;
 
+ALTER TABLE queries
+    ALTER COLUMN schedule_id TYPE uuid
+    USING schedule_id::uuid;
+
+
 
 
 -- ALTER TABLE queries ENABLE ROW LEVEL SECURITY;

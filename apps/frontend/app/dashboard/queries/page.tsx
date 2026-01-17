@@ -24,6 +24,7 @@ export default function NewQueryPage() {
   const [queryType, setQueryType] = useState<"brand" | "category" | "competitor">("category");
   const [brandId, setBrandId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [runningId, setRunningId] = useState<string | null>(null);
 
   /* ---------- Data ---------- */
   const [brands, setBrands] = useState<any[]>([]);
@@ -136,6 +137,27 @@ export default function NewQueryPage() {
       alert(err.response?.data?.error || err.response?.data?.message || "Failed to activate query");
     } finally {
       setActivatingId(null);
+    }
+  }
+
+  /* ---------- Run query once ---------- */
+  async function runOnce(queryId: string) {
+    setRunningId(queryId);
+
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/manual-run`,
+        {},
+        { withCredentials: true }
+      );
+
+      // optional toast / UX
+      setSuccess("Query executed successfully");
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      alert(err.response?.data?.error || err.response?.data?.message || "Failed to run query");
+    } finally {
+      setRunningId(null);
     }
   }
 
@@ -271,15 +293,27 @@ export default function NewQueryPage() {
                 </div>
               </div>
 
-              {!q.is_active && (
+              <div className="flex items-center gap-2">
+                {/* Run once */}
                 <button
-                  onClick={() => activateQuery(q.id)}
-                  disabled={activatingId === q.id}
-                  className="text-xs px-3 py-1 rounded border border-black hover:bg-black hover:text-white transition disabled:opacity-50"
+                  onClick={() => runOnce(q.id)}
+                  disabled={runningId === q.id}
+                  className="text-xs px-3 py-1 rounded border border-gray-400 hover:bg-gray-100 transition disabled:opacity-50"
                 >
-                  {activatingId === q.id ? "Activating..." : "Activate"}
+                  {runningId === q.id ? "Running..." : "Run once"}
                 </button>
-              )}
+
+                {/* Activate (only if inactive) */}
+                {!q.is_active && (
+                  <button
+                    onClick={() => activateQuery(q.id)}
+                    disabled={activatingId === q.id}
+                    className="text-xs px-3 py-1 rounded border border-black hover:bg-black hover:text-white transition disabled:opacity-50"
+                  >
+                    {activatingId === q.id ? "Activating..." : "Activate"}
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>

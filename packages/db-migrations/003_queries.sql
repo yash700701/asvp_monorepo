@@ -24,6 +24,9 @@ ADD COLUMN IF NOT EXISTS schedule_id TEXT;
 CREATE INDEX IF NOT EXISTS idx_queries_active
 ON queries(is_active);
 
+ALTER TABLE queries ADD COLUMN is_paused boolean DEFAULT false;
+
+
 
 -- ALTER TABLE queries ENABLE ROW LEVEL SECURITY;
 

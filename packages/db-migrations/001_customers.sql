@@ -9,6 +9,10 @@ CREATE TABLE IF NOT EXISTS customers (
 
 CREATE INDEX IF NOT EXISTS idx_customers_plan ON customers(plan);
 
+ALTER TABLE customers
+ADD COLUMN IF NOT EXISTS run_limit INTEGER DEFAULT 100;
+
+
 -- ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 
 -- CREATE POLICY customers_self

@@ -143,6 +143,38 @@ router.delete("/:id", requireAuth, async (req, res) => {
  * Manually trigger a Temporal workflow for a query
  */
 router.post("/:id/manual-run", requireAuth, async (req, res) => {
+
+    const usageRes = await db.query(
+        `
+        SELECT COUNT(*)::int AS count
+        FROM runs
+        WHERE customer_id = $1
+        AND started_at >= date_trunc('month', now()) 
+        `,
+        [req.user!.customer_id]
+    );
+
+    const usage = usageRes.rows[0].count;
+
+    const customerRes = await db.query(
+        `
+        SELECT run_limit
+        FROM customers
+        WHERE id = $1
+        `,
+        [req.user!.customer_id]
+    );
+
+    const limit = customerRes.rows[0].run_limit;
+
+    if (usage >= limit) {
+        return res.status(403).json({
+            error: "run_limit_exceeded",
+            limit,
+            used: usage
+        });
+    }
+
     const { id: queryId } = req.params;
 
     // Verify query exists
@@ -193,6 +225,38 @@ router.post("/:id/manual-run", requireAuth, async (req, res) => {
  * POST /queries/:id/auto-schedule
  */
 router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
+
+    const usageRes = await db.query(
+        `
+        SELECT COUNT(*)::int AS count
+        FROM runs
+        WHERE customer_id = $1
+        AND started_at >= date_trunc('month', now()) 
+        `,
+        [req.user!.customer_id]
+    );
+
+    const usage = usageRes.rows[0].count;
+
+    const customerRes = await db.query(
+        `
+        SELECT run_limit
+        FROM customers
+        WHERE id = $1
+        `,
+        [req.user!.customer_id]
+    );
+
+    const limit = customerRes.rows[0].run_limit;
+
+    if (usage >= limit) {
+        return res.status(403).json({
+            error: "run_limit_exceeded",
+            limit,
+            used: usage
+        });
+    }
+
     const { id: queryId } = req.params;
 
     // Fetch query & ownership check

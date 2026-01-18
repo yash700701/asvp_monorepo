@@ -11,6 +11,7 @@ import analyticsShareOfVoiceRoute from "../routes/analyticsShareOfVoice";
 import alertsRoute from "../routes/alerts";
 import recommendationsRoute from "../routes/recommendations";
 import authRoutes from "../routes/auth";
+import usageRoutes from "../routes/usage";
 
 export const createApp = () => {
     const app = express();
@@ -35,6 +36,7 @@ export const createApp = () => {
     app.use("/alerts", alertsRoute);
     app.use("/recommendations", recommendationsRoute);
     app.use("/auth", authRoutes);
+    app.use("/billing", usageRoutes);
 
     return app;
 };

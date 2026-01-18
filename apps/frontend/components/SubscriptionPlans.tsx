@@ -54,7 +54,7 @@ export default function PricingSection() {
             Choose a plan that fits your AI search visibility goals.
             </p>
 
-            <div className="grid gap-8 md:grid-cols-3 items-end">
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 items-end">
             {plans.map((plan) => (
                 <Card
                 key={plan.name}
@@ -65,7 +65,7 @@ export default function PricingSection() {
                 }`}
                 >
                 {plan.popular && (
-                    <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-sm px-4 py-1 rounded-full text-[#E8E8E3] bg-[#44413E]">
+                    <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs px-4 py-1 rounded-full text-[#E8E8E3] bg-[#44413E]">
                     Most Popular
                     </span>
                 )}

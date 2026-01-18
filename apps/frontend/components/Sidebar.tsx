@@ -13,6 +13,7 @@ const items = [
     { name: "Analytics", href: "/dashboard/analytics", icon: BarChart },
     { name: "Alerts", href: "/dashboard/alerts", icon: BarChart },
     { name: "Recommendations", href: "/dashboard/recommendations", icon: BarChart },
+    { name: "Usage", href: "/dashboard/usage", icon: BarChart },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -90,21 +91,24 @@ export default function Sidebar({
                 {/* Top */}
                 <div className="flex items-center justify-between px-4 py-4 border-b">
                     {!collapsed && (
-                        <div className="flex items-center gap-2">
+                        <Link
+                            href="/"
+                            className="flex items-center gap-2 hover:opacity-90 transition"
+                        >
                             <Image
                                 src="/logo_black.png"
                                 alt="Verity AI"
-                                width={24}
-                                height={24}
+                                width={26}
+                                height={26}
                                 unoptimized
                             />
-                            <span className="font-semibold text-sm text-[#171717]">
+                            <span className="font-semibold text-lg text-[#171717]">
                                 Verity AI
                             </span>
-                        </div>
+                        </Link>
                     )}
                     <button onClick={() => setCollapsed(!collapsed)}>
-                        <Menu size={18} />
+                        <Menu size={18} color="black"/>
                     </button>
                 </div>
 

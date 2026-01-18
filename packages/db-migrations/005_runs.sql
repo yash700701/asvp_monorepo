@@ -12,6 +12,28 @@ CREATE INDEX IF NOT EXISTS idx_runs_query_id ON runs(query_id);
 CREATE INDEX IF NOT EXISTS idx_runs_source_id ON runs(source_id);
 CREATE INDEX IF NOT EXISTS idx_runs_started_at ON runs(started_at);
 
+ALTER TABLE runs
+ADD COLUMN customer_id UUID;
+
+ALTER TABLE runs
+ADD CONSTRAINT runs_customer_id_fkey
+FOREIGN KEY (customer_id)
+REFERENCES customers(id)
+ON DELETE CASCADE;
+
+UPDATE runs r
+SET customer_id = q.customer_id
+FROM queries q
+WHERE r.query_id = q.id;
+
+ALTER TABLE runs
+ALTER COLUMN customer_id SET NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_runs_customer_started
+ON runs (customer_id, started_at);
+
+
+
 
 -- ALTER TABLE runs ENABLE ROW LEVEL SECURITY;
 

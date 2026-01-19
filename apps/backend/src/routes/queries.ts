@@ -210,6 +210,7 @@ router.post("/:id/manual-run", requireAuth, async (req, res) => {
             {
                 queryId,
                 sourceId,
+                customer_id: req.user!.customer_id,
             },
         ],
     });
@@ -306,7 +307,7 @@ router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
             workflowId,
             cronSchedule: cron,
             workflowExecutionTimeout: "365 days",
-            args: [{ queryId, sourceId }],
+            args: [{ queryId, sourceId, customer_id: req.user!.customer_id }],
         });
     } catch (err: any) {
         if (err instanceof WorkflowExecutionAlreadyStartedError) {

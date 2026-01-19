@@ -12,6 +12,7 @@ import alertsRoute from "../routes/alerts";
 import recommendationsRoute from "../routes/recommendations";
 import authRoutes from "../routes/auth";
 import usageRoutes from "../routes/usage";
+import billingRoutes from "../routes/billing";
 
 export const createApp = () => {
     const app = express();
@@ -37,6 +38,8 @@ export const createApp = () => {
     app.use("/recommendations", recommendationsRoute);
     app.use("/auth", authRoutes);
     app.use("/billing", usageRoutes);
+    app.use("/billing", billingRoutes);
+
 
     return app;
 };

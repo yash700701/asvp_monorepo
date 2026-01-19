@@ -13,6 +13,7 @@ import recommendationsRoute from "../routes/recommendations";
 import authRoutes from "../routes/auth";
 import usageRoutes from "../routes/usage";
 import billingRoutes from "../routes/billing";
+import feedbackRoutes from "../routes/feedback";
 import { apiLimiter } from "../middleware/rateLimit";
 
 export const createApp = () => {
@@ -40,6 +41,8 @@ export const createApp = () => {
     app.use("/auth", authRoutes);
     app.use("/billing", usageRoutes, apiLimiter);
     app.use("/billing", billingRoutes, apiLimiter);
+    app.use("/feedback", feedbackRoutes);
+
 
 
     return app;

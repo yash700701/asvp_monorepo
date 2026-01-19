@@ -1,6 +1,3 @@
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
 import Header from "@/components/header";
 import Hero from "@/components/hero";
 import GridCard from "@/components/GridCard";

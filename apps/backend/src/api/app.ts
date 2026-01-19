@@ -13,6 +13,7 @@ import recommendationsRoute from "../routes/recommendations";
 import authRoutes from "../routes/auth";
 import usageRoutes from "../routes/usage";
 import billingRoutes from "../routes/billing";
+import { apiLimiter } from "../middleware/rateLimit";
 
 export const createApp = () => {
     const app = express();
@@ -31,14 +32,14 @@ export const createApp = () => {
     // routes
     app.use("/health", healthRoute);
     app.use("/brands", brandsRoute);
-    app.use("/queries", queriesRoute);
-    app.use("/analytics", analyticsVisibilityRoute);
-    app.use("/analytics", analyticsShareOfVoiceRoute);
+    app.use("/queries", queriesRoute, apiLimiter);
+    app.use("/analytics", analyticsVisibilityRoute, apiLimiter);
+    app.use("/analytics", analyticsShareOfVoiceRoute, apiLimiter);
     app.use("/alerts", alertsRoute);
     app.use("/recommendations", recommendationsRoute);
     app.use("/auth", authRoutes);
-    app.use("/billing", usageRoutes);
-    app.use("/billing", billingRoutes);
+    app.use("/billing", usageRoutes, apiLimiter);
+    app.use("/billing", billingRoutes, apiLimiter);
 
 
     return app;

@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { signJWT } from "../auth/jwt";
 import path from "path";
 import dotenv from "dotenv";
+import { ALLOWED_EMAILS } from "../config/allowlist";
 
 dotenv.config({
     path: path.resolve(__dirname, "../../../../.env"),
@@ -30,12 +31,14 @@ router.get(
         const user = req.user as any;
         const token = signJWT(user);
 
-        // res.cookie("auth_token", token, {
-        // httpOnly: true,
-        // secure: true, // true in prod
-        // sameSite: "none", // REQUIRED for cross-origin
-        // path: "/",
-        // });
+        const email = user.email;
+        // const domain = email.split("@")[1];
+
+        if (!ALLOWED_EMAILS.includes(email)) {
+            return res.redirect(
+                `${process.env.FRONTEND_URL}/no-access`
+            );
+        }
 
         res.redirect(`http://localhost:3000/api/auth/callback?token=${token}`);
     }

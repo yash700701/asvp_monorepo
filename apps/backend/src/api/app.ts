@@ -33,17 +33,15 @@ export const createApp = () => {
     // routes
     app.use("/health", healthRoute);
     app.use("/brands", brandsRoute);
-    app.use("/queries", queriesRoute, apiLimiter);
-    app.use("/analytics", analyticsVisibilityRoute, apiLimiter);
-    app.use("/analytics", analyticsShareOfVoiceRoute, apiLimiter);
+    app.use("/queries", apiLimiter, queriesRoute);
+    app.use("/analytics", apiLimiter, analyticsVisibilityRoute);
+    app.use("/analytics", apiLimiter, analyticsShareOfVoiceRoute);
     app.use("/alerts", alertsRoute);
-    app.use("/recommendations", recommendationsRoute);
+    app.use("/recommendations", apiLimiter, recommendationsRoute);
     app.use("/auth", authRoutes);
-    app.use("/billing", usageRoutes, apiLimiter);
-    app.use("/billing", billingRoutes, apiLimiter);
+    app.use("/billing", apiLimiter, usageRoutes);
+    app.use("/billing", apiLimiter, billingRoutes);
     app.use("/feedback", feedbackRoutes);
-
-
 
     return app;
 };

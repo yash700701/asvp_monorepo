@@ -42,3 +42,11 @@ export interface AISourceConnector {
         input: ConnectorExecuteInput
     ): Promise<ConnectorExecuteOutput>;
 }
+
+export type ConnectorError =
+    | { type: "RATE_LIMITED"; retryAfter?: number }
+    | { type: "CAPTCHA"; screenshotUrl?: string }
+    | { type: "NO_AI_OVERVIEW" }
+    | { type: "DOM_CHANGED" }
+    | { type: "NETWORK_ERROR" };
+

@@ -191,11 +191,19 @@ router.post("/:id/manual-run", requireAuth, async (req, res) => {
         return res.status(404).json({ error: "Query not found" });
     }
 
-    // fetch ChatGPT source
-    const sourceRes = await db.query(`SELECT id FROM sources WHERE type = 'chatgpt'`);
+    // Prefer Gemini for zero-cost testing, fallback to ChatGPT
+    const sourceRes = await db.query(
+        `
+        SELECT id, type
+        FROM sources
+        WHERE type IN ('gemini', 'chatgpt')
+        ORDER BY CASE WHEN type = 'gemini' THEN 0 ELSE 1 END
+        LIMIT 1
+        `
+    );
 
     if (sourceRes.rows.length === 0) {
-        return res.status(500).json({ error: "ChatGPT source not found" });
+        return res.status(500).json({ error: "No source found (gemini/chatgpt)" });
     }
 
     const sourceId = sourceRes.rows[0].id;
@@ -288,11 +296,19 @@ router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
         });
     }
 
-    // Fetch ChatGPT source
-    const sourceRes = await db.query(`SELECT id FROM sources WHERE type = 'chatgpt'`);
+    // Prefer Gemini for zero-cost testing, fallback to ChatGPT
+    const sourceRes = await db.query(
+        `
+        SELECT id, type
+        FROM sources
+        WHERE type IN ('gemini', 'chatgpt')
+        ORDER BY CASE WHEN type = 'gemini' THEN 0 ELSE 1 END
+        LIMIT 1
+        `
+    );
 
     if (sourceRes.rows.length === 0) {
-        return res.status(500).json({ error: "ChatGPT source not found" });
+        return res.status(500).json({ error: "No source found (gemini/chatgpt)" });
     }
 
     const sourceId = sourceRes.rows[0].id;

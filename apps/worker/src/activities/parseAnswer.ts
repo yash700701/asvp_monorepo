@@ -63,7 +63,7 @@ export async function parseAnswer(input: {
                 parsed.confidence,
                 parsed.sentiment,
                 parsed.prominence,
-                parsed.entities,
+                JSON.stringify(parsed.entities),
                 res.rows[0].answer_id
             ]
         );

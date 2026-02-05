@@ -3,9 +3,10 @@ import { PerplexityMockConnector } from "./perplexity.mock";
 import { GoogleAioMockConnector } from "./googleAio.mock";
 import { SourceConnector } from "./types";
 import { CONNECTOR_REGISTRY } from "../../../../packages/connectors/registry";
+import type { AISourceConnector } from "../../../../packages/connectors/types";
 
 function adaptPackageConnector(
-    connector: SourceConnector
+    connector: AISourceConnector
 ): SourceConnector {
     return {
         async fetch({ queryText, queryType, runId, locale }) {
@@ -13,7 +14,7 @@ function adaptPackageConnector(
                 runId,
                 query: queryText,
                 queryType,
-                locale
+                // locale
             });
 
             return {

@@ -10,7 +10,8 @@ export interface BrowserTaskInput {
 
 export interface BrowserTaskOutput {
     html: string;
-    // screenshotUrl: string;
+    htmlPath?: string;
+    screenshotPath?: string;
     latencyMs: number;
     debug: {
         userAgent: string;

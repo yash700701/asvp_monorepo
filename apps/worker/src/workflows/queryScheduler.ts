@@ -39,6 +39,6 @@ export async function querySchedulerWorkflow(input: {
         return;
     }
     const { runId } = await createRun(input);
-    await fetchAndStoreAnswer(input);
+    await fetchAndStoreAnswer({ ...input, runId });
     await parseAnswer({ runId });
 }

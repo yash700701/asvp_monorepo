@@ -33,7 +33,20 @@ router.get("/share-of-voice", requireAuth, async (req, res) => {
             date_trunc('day', r.started_at) AS day,
             s.type AS source_type,
             COUNT(*) AS total_answers,
-            SUM(CASE WHEN a.mentions_brand THEN 1 ELSE 0 END) AS brand_mentions
+            SUM(CASE WHEN a.mentions_brand THEN 1 ELSE 0 END) AS brand_mentions,
+            SUM(
+                CASE
+                    WHEN a.mentions_brand THEN
+                        a.confidence
+                        * (0.6 + 0.4 * COALESCE(a.prominence, 0))
+                        * CASE
+                            WHEN a.sentiment = 'positive' THEN 1.1
+                            WHEN a.sentiment = 'negative' THEN 0.7
+                            ELSE 1.0
+                        END
+                    ELSE 0
+                END
+            ) AS weighted_mentions
         FROM answers a
         JOIN runs r ON r.id = a.run_id
         JOIN sources s ON s.id = r.source_id
@@ -47,9 +60,10 @@ router.get("/share-of-voice", requireAuth, async (req, res) => {
         source_type,
         brand_mentions,
         total_answers,
+        weighted_mentions,
         CASE
             WHEN total_answers = 0 THEN 0
-            ELSE brand_mentions::float / total_answers
+            ELSE weighted_mentions::float / total_answers
         END AS share_of_voice
         FROM daily_counts
         ORDER BY day DESC, source_type

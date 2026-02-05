@@ -18,7 +18,8 @@ export interface ConnectorExecuteOutput {
     raw: {
         text: string;           // visible AI answer
         html?: string;          // full DOM snapshot (if browser)
-        screenshotUrl?: string; // S3 path
+        htmlPath?: string;      // snapshot path (local or S3)
+        screenshotUrl?: string; // snapshot path (local or S3)
     };
 
     metadata: {

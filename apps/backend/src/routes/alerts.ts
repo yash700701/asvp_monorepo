@@ -18,7 +18,7 @@ router.get("/", requireAuth, async (req, res) => {
     res.json(result.rows);
 });
 
-router.post("/:id/ack", async (req, res) => {
+router.post("/:id/ack", requireAuth, async (req, res) => {
     const { id } = req.params;
 
     await db.query(

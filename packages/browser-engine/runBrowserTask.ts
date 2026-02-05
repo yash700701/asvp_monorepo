@@ -1,5 +1,5 @@
 import { browserManager } from "./BrowserManager";
-// import { uploadSnapshot } from "./storage";
+import { storeSnapshot } from "./storage";
 import { BrowserTaskInput, BrowserTaskOutput } from "./types";
 
 export async function runBrowserTask(
@@ -29,17 +29,19 @@ export async function runBrowserTask(
         }
 
         const html = await page.content();
-        // const screenshot = await page.screenshot({ fullPage: true });
+        const screenshot = await page.screenshot({ fullPage: true });
 
-        // const screenshotUrl = await uploadSnapshot(
-        //     input.runId,
-        //     input.source,
-        //     screenshot
-        // );
+        const snapshot = await storeSnapshot({
+            runId: input.runId,
+            source: input.source,
+            html,
+            screenshot
+        });
 
         return {
             html,
-            // screenshotUrl,
+            htmlPath: snapshot.htmlPath,
+            screenshotPath: snapshot.screenshotPath,
             latencyMs: Date.now() - start,
             debug: {
                 userAgent: await page.evaluate(

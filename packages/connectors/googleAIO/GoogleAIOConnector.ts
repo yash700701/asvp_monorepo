@@ -25,7 +25,7 @@ export class GoogleAIOConnector implements AISourceConnector {
             }
         });
 
-        const { html } = browserResult;
+        const { html, htmlPath, screenshotPath } = browserResult;
 
         const detection = this.detectAIO(html);
 
@@ -34,7 +34,8 @@ export class GoogleAIOConnector implements AISourceConnector {
             raw: {
                 text: detection.text ?? "",
                 html,
-                // screenshotUrl: browserResult.screenshotUrl
+                htmlPath,
+                screenshotUrl: screenshotPath
             },
             metadata: {
                 appeared: detection.appeared,

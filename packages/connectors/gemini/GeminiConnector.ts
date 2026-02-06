@@ -4,6 +4,13 @@ import {
     ConnectorExecuteOutput
 } from "../types";
 
+import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config({
+    path: path.resolve(__dirname, "../../../.env"),
+});
+
 export class GeminiConnector implements AISourceConnector {
     source = "gemini" as const;
 
@@ -14,59 +21,50 @@ export class GeminiConnector implements AISourceConnector {
 
         const useApi = process.env.ENABLE_GEMINI_API === "true";
         const apiKey = process.env.GEMINI_API_KEY;
-        const apiUrl = process.env.GEMINI_API_URL;
+        const apiUrl =
+            process.env.GEMINI_API_URL;
 
         if (useApi && apiKey && apiUrl) {
-            try {
-                const text = await this.callGemini(apiUrl, apiKey, input.query);
+            const text = await this.callGemini(apiUrl, apiKey, input.query);
 
-                return {
-                    source: this.source,
-                    raw: {
-                        text
-                    },
-                    metadata: {
-                        appeared: true,
-                        position: 1,
-                        container: "gemini_api",
-                        model: "gemini",
-                        latencyMs: Date.now() - start
-                    },
-                    debug: {
-                        fetchedAt: new Date().toISOString(),
-                        executionType: "api",
-                        version: "gemini_api_v1"
-                    }
-                };
-            } catch {
-                // Fall through to mock if API fails
-            }
+            return {
+                source: this.source,
+                raw: {
+                    text
+                },
+                metadata: {
+                    appeared: true,
+                    position: 1,
+                    container: "gemini_api",
+                    model: "gemini",
+                    latencyMs: Date.now() - start
+                },
+                debug: {
+                    fetchedAt: new Date().toISOString(),
+                    executionType: "api",
+                    version: "gemini_api_v1"
+                }
+            };
         }
-
-        const mockText = this.buildMockAnswer(input.query);
 
         return {
             source: this.source,
             raw: {
-                text: mockText
+                text: "Gemini API not configured"
             },
             metadata: {
-                appeared: true,
-                position: 1,
-                container: "gemini_mock",
-                model: "gemini-mock",
+                appeared: false,
+                position: 0,
+                container: "gemini_disabled",
+                model: "gemini",
                 latencyMs: Date.now() - start
             },
             debug: {
                 fetchedAt: new Date().toISOString(),
                 executionType: "api",
-                version: "gemini_mock_v1"
+                version: "gemini_api_v1"
             }
         };
-    }
-
-    private buildMockAnswer(query: string): string {
-        return `Mock Gemini answer for: "${query}". This is a zero-cost connector response for testing.`;
     }
 
     private async callGemini(
@@ -92,7 +90,8 @@ export class GeminiConnector implements AISourceConnector {
         });
 
         if (!res.ok) {
-            throw new Error(`Gemini API error: ${res.status}`);
+            const body = await res.text();
+            return `Gemini API error: ${res.status} ${body}`;
         }
 
         const data = await res.json();
@@ -100,10 +99,6 @@ export class GeminiConnector implements AISourceConnector {
             data?.candidates?.[0]?.content?.parts?.[0]?.text ||
             data?.candidates?.[0]?.content?.text;
 
-        if (!text) {
-            throw new Error("Gemini API returned no text");
-        }
-
-        return String(text);
+        return String(text || "Gemini API returned no text");
     }
 }

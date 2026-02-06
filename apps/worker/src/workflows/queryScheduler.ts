@@ -34,7 +34,6 @@ export async function querySchedulerWorkflow(input: {
         paused = false;
     });
 
-    // Cron will re-enter here on each tick
     if (paused) {
         return;
     }

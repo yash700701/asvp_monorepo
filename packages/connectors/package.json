@@ -1,0 +1,10 @@
+{
+  "name": "asvp-connectors",
+  "private": true,
+  "version": "0.0.1",
+  "type": "commonjs",
+  "dependencies": {
+    "@google/genai": "^0.7.0",
+    "dotenv": "^17.2.3"
+  }
+}

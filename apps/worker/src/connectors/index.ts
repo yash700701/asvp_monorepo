@@ -14,7 +14,7 @@ function adaptPackageConnector(
                 runId,
                 query: queryText,
                 queryType,
-                // locale
+                locale
             });
 
             return {

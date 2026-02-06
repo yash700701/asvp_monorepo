@@ -128,6 +128,7 @@ export default function NewQueryPage() {
             }
         } finally {
             setLoading(false);
+            refreshQueries();
         }
     }
 

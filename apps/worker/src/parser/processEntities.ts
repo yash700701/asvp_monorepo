@@ -1,4 +1,16 @@
 import { extractEntitiesNER } from "./nerClient";
+import { linkEntity } from "./unifiedEntityLinker";
+
+type LinkedEntity = {
+    entity_id: string;          // canonical ID
+    name: string;               // surface form from text
+    canonical_name: string;
+    type: "Brand" | "Company" | "Product";
+    confidence: number;         // linking confidence
+    relevance: number;          // from Phase 2 + 3
+    sentence_index: number;
+};
+
 
 type ASVPEntity = {
     name: string;
@@ -53,3 +65,34 @@ export async function processEntities(
         };
     });
 }
+
+export function linkNEREntities(
+    entities: ASVPEntity[]
+): LinkedEntity[] {
+    return entities.map(e => {
+        const linked = linkEntity(e.name);
+
+        if (!linked) {
+            return {
+                entity_id: `raw_${e.name.toLowerCase()}`,
+                name: e.name,
+                canonical_name: e.name,
+                type: e.type,
+                confidence: e.confidence * 0.6,
+                relevance: e.relevance,
+                sentence_index: e.sentence_index
+            };
+        }
+
+        return {
+            entity_id: linked.entity.id,
+            name: e.name,
+            canonical_name: linked.entity.canonical_name,
+            type: linked.entity.type,
+            confidence: linked.confidence,
+            relevance: e.relevance,
+            sentence_index: e.sentence_index
+        };
+    });
+}
+

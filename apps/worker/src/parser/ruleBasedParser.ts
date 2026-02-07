@@ -2,6 +2,9 @@ import { ParserInput, ParsedOutput } from "./types";
 import { detectSentimentEmbedding } from "./sentimentEmbedding";
 import { computeSentenceLevelProminence } from "./sentenceProminence";
 import { processEntities } from "./processEntities";
+import { computeVisibilityScore } from "./computeVisibilityScore";
+import { linkNEREntities } from "./processEntities";
+import { linkEntity } from "./unifiedEntityLinker";
 
 export function ruleBasedParser(input: ParserInput): ParsedOutput {
     const text = input.raw_text;
@@ -22,6 +25,8 @@ export function ruleBasedParser(input: ParserInput): ParsedOutput {
     if (input.raw_text.length > 500) confidence += 0.1;
 
     confidence = Math.min(confidence, 1.0);
+
+    // const confidence = computeVisibilityScore(xyz);
 
     const sentiment = detectSentiment(lower);
     // const sentiment = await detectSentimentEmbedding(input.raw_text);

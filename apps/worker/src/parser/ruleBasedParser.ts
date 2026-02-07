@@ -1,5 +1,7 @@
 import { ParserInput, ParsedOutput } from "./types";
 import { detectSentimentEmbedding } from "./sentimentEmbedding";
+import { computeSentenceLevelProminence } from "./sentenceProminence";
+import { processEntities } from "./processEntities";
 
 export function ruleBasedParser(input: ParserInput): ParsedOutput {
     const text = input.raw_text;
@@ -24,7 +26,17 @@ export function ruleBasedParser(input: ParserInput): ParsedOutput {
     const sentiment = detectSentiment(lower);
     // const sentiment = await detectSentimentEmbedding(input.raw_text);
     const prominence = computeProminence(lower, brandNamesLower);
+    // const prominence = await computeSentenceLevelProminence(
+    //     input.raw_text,
+    //     input.brandNames
+    // );
     const entities = extractEntities(text, brandNamesLower);
+    // const entities = processEntities(
+    //     input.raw_text,
+    //     sentences,
+    //     sentenceImportanceScores,
+    //     input.brandNames
+    // )
 
     return {
         main_snippet: mainSnippet,

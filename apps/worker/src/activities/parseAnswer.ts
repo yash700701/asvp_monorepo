@@ -35,12 +35,14 @@ export async function parseAnswer(input: {
         }
 
         const rawText = res.rows[0].raw_text;
-        const brandNames = res.rows.map((r) => r.brand_name);
+        // Get all brand names for the customer
+        const brandNames = res.rows.map((r) => r.brand_name); 
 
         // Parse
         const parsed = ruleBasedParser({
             raw_text: rawText,
             brandNames
+            
         });
 
         // Store structured fields

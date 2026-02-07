@@ -1,4 +1,5 @@
 import { ParserInput, ParsedOutput } from "./types";
+import { detectSentimentEmbedding } from "./sentimentEmbedding";
 
 export function ruleBasedParser(input: ParserInput): ParsedOutput {
     const text = input.raw_text;
@@ -21,6 +22,7 @@ export function ruleBasedParser(input: ParserInput): ParsedOutput {
     confidence = Math.min(confidence, 1.0);
 
     const sentiment = detectSentiment(lower);
+    // const sentiment = await detectSentimentEmbedding(input.raw_text);
     const prominence = computeProminence(lower, brandNamesLower);
     const entities = extractEntities(text, brandNamesLower);
 
@@ -126,3 +128,13 @@ function extractEntities(text: string, brandNamesLower: string[]) {
 
     return entities;
 }
+
+
+
+// How you’ll likely evolve this in ASVP 
+
+// Replace keyword sentiment → embedding-based sentiment
+// Improve entities → NER model
+// Confidence → answer source weighting
+// Prominence → sentence-level scoring
+// Entity type inference → Brand / Product / Company separation

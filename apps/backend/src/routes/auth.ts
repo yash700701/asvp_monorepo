@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { signJWT } from "../auth/jwt";
 import path from "path";
 import dotenv from "dotenv";
-import { ALLOWED_EMAILS } from "../config/allowlist";
+import { db } from "../db/client";
 
 dotenv.config({
     path: path.resolve(__dirname, "../../../../.env"),
@@ -27,14 +27,24 @@ router.get(
         session: false,
         failureRedirect: "/login"
     }),
-    (req, res) => {
+    async (req, res) => {
         const user = req.user as any;
         const token = signJWT(user);
 
         const email = user.email;
-        // const domain = email.split("@")[1];
 
-        if (!ALLOWED_EMAILS.includes(email)) {
+        const allowlistRes = await db.query(
+            `
+            SELECT id
+            FROM allowed_emails
+            WHERE email = $1
+            AND is_active = true
+            LIMIT 1
+            `,
+            [email]
+        );
+
+        if (allowlistRes.rows.length === 0) {
             return res.redirect(
                 `${process.env.FRONTEND_URL}/no-access`
             );

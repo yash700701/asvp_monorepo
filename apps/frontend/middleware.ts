@@ -1,14 +1,26 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { jwtVerify } from "jose";
 
-export function middleware(request: NextRequest) {
-    const authCookie = request.cookies.get("auth_token");
+export async function middleware(request: NextRequest) {
+    const token = request.cookies.get("auth_token")?.value;
 
-    if (!authCookie) {
+    if (!token) {
         return NextResponse.redirect(new URL("/signin", request.url));
     }
 
-    return NextResponse.next();
+    try {
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+
+        await jwtVerify(token, secret);
+
+        return NextResponse.next();
+    } catch (error) {
+        // Token invalid or expired
+        const response = NextResponse.redirect(new URL("/signin", request.url));
+        response.cookies.delete("auth_token");
+        return response;
+    }
 }
 
 export const config = {

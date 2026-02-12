@@ -10,13 +10,12 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+        const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
 
         await jwtVerify(token, secret);
 
         return NextResponse.next();
     } catch (error) {
-        // Token invalid or expired
         const response = NextResponse.redirect(new URL("/signin", request.url));
         response.cookies.delete("auth_token");
         return response;

@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import path from "path";
 import dotenv from "dotenv";
-import { log } from "console";
 
 dotenv.config({
     path: path.resolve(__dirname, "../../../../.env"),
@@ -31,7 +30,6 @@ export function requireAuth(
         process.env.JWT_SECRET!
         ) as Express.User;
 
-        console.log("Decoded user in middleware:", decoded);
         req.user = decoded;
         next();
     } catch {

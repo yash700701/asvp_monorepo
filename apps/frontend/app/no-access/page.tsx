@@ -1,6 +1,21 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 export default function NoAccessPage() {
+    const [slots, setSlots] = useState<number | null>(null);
+    const [isFull, setIsFull] = useState(false);
+
+    useEffect(() => {
+        fetch("/api/slots")
+            .then((res) => res.json())
+            .then((data) => {
+                setSlots(data.remainingSlots);
+                setIsFull(data.isFull);
+            });
+    }, []);
+
     return (
         <main className="min-h-screen flex bg-[#E8E8E3] text-[#171717] items-center justify-center p-4">
             <div className="w-full max-w-md p-8 text-center space-y-6">
@@ -23,17 +38,33 @@ export default function NoAccessPage() {
                 </div>
 
                 <div className="relative rounded-xl bg-[#F5F5F4] p-4 text-sm text-gray-600">
-                    <div className="absolute -top-3 right-3 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 shadow-sm">
-                        Slots available
+                    <div
+                        className={`absolute -top-3 right-3 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${isFull
+                            ? "bg-red-100 text-red-700"
+                            : "bg-green-100 text-green-700"
+                            }`}
+                    >
+                        {slots === null
+                            ? "Checking..."
+                            : isFull
+                                ? "No slots available"
+                                : `${slots} Slots Available`}
                     </div>
+
                     <p>
                         <span className="font-medium text-gray-800">VerityAI</span> is in private beta.
                     </p>
+
+
                     <p className="mt-1">
-                        To ensure quality and performance, we are allowing only
-                        <span className="font-semibold text-gray-800"> 10 customers </span>
+                        We are allowing only{" "}
+                        <span className="font-semibold text-gray-800">
+                            10 customers
+                        </span>{" "}
                         during this phase.
                     </p>
+
+
                 </div>
 
                 <form className="space-y-4 text-left">

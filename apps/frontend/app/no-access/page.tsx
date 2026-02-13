@@ -8,7 +8,7 @@ export default function NoAccessPage() {
     const [isFull, setIsFull] = useState(false);
 
     useEffect(() => {
-        fetch("/api/slots")
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE}/no-access/slots`)
             .then((res) => res.json())
             .then((data) => {
                 setSlots(data.remainingSlots);
@@ -36,45 +36,33 @@ export default function NoAccessPage() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
-
-        const payload = {
-            access_key: process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY,
-            ...formData,
-        };
+        setResultMessage("");
 
         try {
-            const response = await fetch("https://api.web3forms.com/submit", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/no-access/request-access`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(payload),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
             });
 
-            if (response.status === 200) {
-                setResultMessage("🎉 Access request sent successfully! We'll get back to you soon.");
-                setMessageType("success");
-            } else {
-                setResultMessage("❌ Failed to send request. Please try again.");
+            const data = await response.json();
+
+            if (!response.ok) {
+                setResultMessage(data.error || "Something went wrong.");
                 setMessageType("error");
+            } else {
+                setResultMessage("🎉 Request sent! Check your email.");
+                setMessageType("success");
+                setFormData({ name: "", email: "" });
             }
-
-        } catch (error) {
-            setResultMessage("⚠️ Something went wrong. Please try again.");
+        } catch {
+            setResultMessage("⚠️ Network error. Try again.");
             setMessageType("error");
-
         } finally {
             setIsLoading(false);
-            setFormData({ name: "", email: "" });
-
-            setTimeout(() => {
-                setResultMessage("");
-                setMessageType("");
-            }, 4000);
         }
-
     };
+
 
     return (
         <main className="min-h-screen flex bg-[#E8E8E3] text-[#171717] items-center justify-center p-4">

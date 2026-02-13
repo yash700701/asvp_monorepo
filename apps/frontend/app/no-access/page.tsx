@@ -16,6 +16,66 @@ export default function NoAccessPage() {
             });
     }, []);
 
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+    });
+    const [resultMessage, setResultMessage] = useState("");
+    const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        const payload = {
+            access_key: process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY,
+            ...formData,
+        };
+
+        try {
+            const response = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.status === 200) {
+                setResultMessage("🎉 Access request sent successfully! We'll get back to you soon.");
+                setMessageType("success");
+            } else {
+                setResultMessage("❌ Failed to send request. Please try again.");
+                setMessageType("error");
+            }
+
+        } catch (error) {
+            setResultMessage("⚠️ Something went wrong. Please try again.");
+            setMessageType("error");
+
+        } finally {
+            setIsLoading(false);
+            setFormData({ name: "", email: "" });
+
+            setTimeout(() => {
+                setResultMessage("");
+                setMessageType("");
+            }, 4000);
+        }
+
+    };
+
     return (
         <main className="min-h-screen flex bg-[#E8E8E3] text-[#171717] items-center justify-center p-4">
             <div className="w-full max-w-md p-8 text-center space-y-6">
@@ -67,13 +127,18 @@ export default function NoAccessPage() {
 
                 </div>
 
-                <form className="space-y-4 text-left">
+                <form className="space-y-4 text-left" onSubmit={handleSubmit}>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">
                             Full Name
                         </label>
                         <input
                             type="text"
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
                             placeholder="Your name"
                             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                         />
@@ -85,18 +150,36 @@ export default function NoAccessPage() {
                         </label>
                         <input
                             type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
                             placeholder="you@company.com"
                             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                         />
                     </div>
 
                     <button
-                        type="button"
-                        className="w-full rounded-lg bg-black py-2.5 text-sm font-medium text-white transition hover:bg-gray-900"
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full rounded-lg bg-black py-2.5 text-sm font-medium text-white transition cursor-pointer hover:bg-gray-900"
                     >
-                        Request Access
+                        {isLoading ? "Submitting..." : "Request Access"}
                     </button>
                 </form>
+
+                {resultMessage && (
+                    <p
+                        className={`mt-3 text-sm font-medium text-center ${messageType === "success"
+                            ? "text-green-600"
+                            : "text-red-600"
+                            }`}
+                    >
+                        {resultMessage}
+                    </p>
+                )}
+
 
                 <p className="text-xs text-gray-400">
                     We’ll review your request and get back to you if a slot opens up.

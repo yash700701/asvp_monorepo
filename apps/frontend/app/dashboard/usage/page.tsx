@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { UsageBar } from "@/components/UsageBar";
-import PricingSection from "@/components/SubscriptionPlans";
+import PricingSection from "@/components/landingPage/SubscriptionPlans";
 import Loading from "@/components/Loading";
 
 type UsageResponse = {

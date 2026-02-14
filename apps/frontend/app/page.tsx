@@ -1,8 +1,14 @@
-import Header from "@/components/header";
-import Hero from "@/components/hero";
-import GridCard from "@/components/GridCard";
-import PricingSection from "@/components/SubscriptionPlans";
-import Footer from "@/components/Footer";
+import Header from "@/components/landingPage/header";
+import Hero from "@/components/landingPage/hero";
+import GridCard from "@/components/landingPage/GridCard";
+import PricingSection from "@/components/landingPage/SubscriptionPlans";
+import Footer from "@/components/landingPage/Footer";
+import BottomCTA from "@/components/landingPage/BottomCTA";
+import PartnersSection from "@/components/landingPage/Partners";
+import BenefitsSection from "@/components/landingPage/Benefits";
+import HowItWorks from "@/components/landingPage/HowItWorks";
+import Testimonials from "@/components/landingPage/Reviews";
+import FAQ from "@/components/landingPage/FAQ";
 
 export default async function Page() {
   return (
@@ -10,8 +16,13 @@ export default async function Page() {
       <Header />
       <main>
         <Hero />
-        <GridCard />
+        <PartnersSection />
+        <BenefitsSection />
+        <HowItWorks />
         <PricingSection />
+        <Testimonials />
+        <FAQ />
+        <BottomCTA />
       </main>
       <Footer />
     </>

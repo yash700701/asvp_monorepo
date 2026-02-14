@@ -53,14 +53,14 @@ export default function PricingSection() {
     async function handleSubscribe(plan: "pro") {
         try {
             const { payment_url } = await subscribeToPlan(plan);
-            window.location.href = payment_url; // 🔥 redirect to Razorpay
+            window.location.href = payment_url; 
         } catch (err: any) {
             alert(err.response?.data?.error || "Failed to start subscription");
         }
     }
 
     return (
-        <section className="py-20 bg-[#E8E8E3] text-[#171717]">
+        <section className="py-16 text-[#171717]">
             <div className="max-w-7xl mx-auto px-5 text-center">
                 <h2 className="text-4xl font-bold mb-4">
                     Simple, Transparent Pricing
@@ -85,7 +85,7 @@ export default function PricingSection() {
                                 </span>
                             )}
 
-                            <CardHeader className="text-center space-y-2">
+                            <CardHeader className="space-y-2">
                                 <CardTitle className="text-2xl font-semibold">
                                     {plan.name}
                                 </CardTitle>
@@ -107,7 +107,7 @@ export default function PricingSection() {
 
                                 {plan.action === "pro" && (
                                     <Button
-                                        className="w-full rounded-xl"
+                                        className="w-full border cursor-pointer rounded-xl"
                                         onClick={() => handleSubscribe("pro")}
                                     >
                                         Get Started
@@ -115,13 +115,13 @@ export default function PricingSection() {
                                 )}
 
                                 {plan.action === "contact" && (
-                                    <Button variant="outline" className="w-full rounded-xl">
+                                    <Button variant="outline" className="w-full rounded-xl cursor-pointer text-zinc-200">
                                         Contact Sales
                                     </Button>
                                 )}
 
                                 {!plan.action && (
-                                    <Button disabled className="w-full rounded-xl">
+                                    <Button disabled className="w-full border rounded-xl">
                                         Current Plan
                                     </Button>
                                 )}

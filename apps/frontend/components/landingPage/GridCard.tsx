@@ -1,5 +1,5 @@
-import { HoverExpand_001 } from "./ui/skiper/skiper52";
-import { HoverExpand_002 } from "./ui/skiper/skiper53";
+import { HoverExpand_001 } from "../ui/skiper/skiper52";
+import { HoverExpand_002 } from "../ui/skiper/skiper53";
 
 export default function GridCard() {
     const images = [
@@ -17,7 +17,7 @@ export default function GridCard() {
     ];
 
     return (
-        <div className="h-full w-full px-3 sm:px-6 overflow-hidden bg-[#E8E8E3]">
+        <div className="h-full w-full px-3 sm:px-6 overflow-hidden ">
             <div className=" flex items-center justify-center w-full py-16 rounded-4xl">
 
                 {/* Desktop */}

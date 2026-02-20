@@ -9,6 +9,7 @@ import BenefitsSection from "@/components/landingPage/Benefits";
 import HowItWorks from "@/components/landingPage/HowItWorks";
 import Testimonials from "@/components/landingPage/Reviews";
 import FAQ from "@/components/landingPage/FAQ";
+import DemoSection from "@/components/landingPage/DemoVideo";
 
 export default async function Page() {
   return (
@@ -16,8 +17,9 @@ export default async function Page() {
       <Header />
       <main>
         <Hero />
-        <PartnersSection />
+        {/* <PartnersSection /> */}
         <BenefitsSection />
+        <DemoSection />
         <HowItWorks />
         <PricingSection />
         <Testimonials />

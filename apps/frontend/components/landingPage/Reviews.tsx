@@ -52,11 +52,11 @@ function ReviewCard({ img, name, username, body }: any) {
 
 export default function Testimonials() {
     return (
-        <section className="py-24 text-[#171717]">
+        <section className="py-24 text-[#171717] max-w-7xl mx-auto px-6 md:px-20">
 
-            <div className="text-center max-w-3xl mx-auto mb-16 px-6">
+            <div className="text-center  mb-16 ">
                 <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-                    Brands Winning in AI Search Use ASVP
+                    Brands Winning <span className="text-zinc-600">in AI Search Using</span> VerityAi
                 </h2>
                 <p className="mt-6 text-lg text-zinc-600">
                     See how growth teams are increasing their visibility across AI models
@@ -66,9 +66,9 @@ export default function Testimonials() {
 
             <div className="relative overflow-hidden">
 
-                <div className="pointer-events-none absolute left-0 top-0 h-full w-32 bg-linear-to-r from-[#F7F7F4] to-transparent z-10" />
+                <div className="pointer-events-none absolute left-0 top-0 h-full w-32 bg-linear-to-r from-white to-transparent z-10" />
 
-                <div className="pointer-events-none absolute right-0 top-0 h-full w-32 bg-linear-to-l from-[#F7F7F4] to-transparent z-10" />
+                <div className="pointer-events-none absolute right-0 top-0 h-full w-32 bg-linear-to-l from-white to-transparent z-10" />
 
                 <div className="space-y-5 py-5">
                     <div className="flex w-max animate-scroll-left">

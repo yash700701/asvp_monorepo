@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Link from "next/link";
+import { Poppins } from 'next/font/google'
+import { Manrope } from 'next/font/google'
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+})
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+})
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#F7F7F4] text-[#171717]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased ${poppins.className} ${manrope.className} bg-[#F7F7F4] text-[#171717] no-select`}
       >
         {children}
       </body>

@@ -25,8 +25,8 @@ function NavLink({
 export default function Header() {
     const router = useRouter();
     return (
-        <header className="w-full border-b bg-[#F7F7F4]/20 backdrop-blur-md fixed top-0 z-50">
-            <div className="mx-auto max-w-7xl px-3 sm:px-6 py-4 flex items-center justify-between">
+        <header className="w-full border-b bg-white/20 backdrop-blur-md fixed top-0 z-50">
+            <div className="mx-auto max-w-7xl px-6 md:px-20 py-4 flex items-center justify-between">
 
                 <Link href="/" className="flex items-center gap-2">
                     <div className="h-10 w-10 flex items-center justify-center">

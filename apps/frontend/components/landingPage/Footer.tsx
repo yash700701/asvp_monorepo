@@ -4,24 +4,26 @@ import Image from "next/image";
 
 export default function Footer() {
     return (
-        <footer className="border-t text-[#171717] border-zinc-200">
-            <div className="mx-auto max-w-7xl px-3 sm:px-6 py-8">
-                <div className="flex flex-col items-center gap-6 text-center md:flex-row md:justify-between md:text-left">
+        <footer className="relative overflow-hidden text-[#171717] bg-white">
 
-                    {/* Left */}
-                    <div className="flex items-center gap-3">
-                        <Image
-                            src="/logo_white.png"
-                            alt="ASVP Logo"
-                            width={64}
-                            height={64}
-                            className="h-12 w-12 md:h-16 md:w-16"
-                            unoptimized
-                        />
-                        <span className="font-semibold text-2xl md:text-4xl">
-                            Verity AI
-                        </span>
-                    </div>
+            {/* BIG BACKGROUND TEXT */}
+            <div className="pointer-events-none flex items-end justify-center ">
+                <h1 className="
+          text-[22vw] 
+          font-extrabold 
+          tracking-tight 
+          text-zinc-300/40 
+          leading-none 
+          select-none
+          [mask-image:linear-gradient(to_bottom,black_60%,transparent)]
+        ">
+                    VerityAI
+                </h1>
+            </div>
+
+            {/* FOOTER CONTENT */}
+            <div className="relative mx-auto max-w-7xl px-6 md:px-20 py-5">
+                <div className="flex flex-col items-center gap-6 text-center md:flex-row md:justify-between md:text-left">
 
                     {/* Center */}
                     <div className="text-xs md:text-sm opacity-80">
@@ -33,19 +35,17 @@ export default function Footer() {
                         <a
                             href="https://www.linkedin.com/company/verity-ai"
                             target="_blank"
-                            aria-label="LinkedIn"
                             className="opacity-80 hover:opacity-100 transition"
                         >
-                            <img src="/linkedin.png" alt="LinkedIn" className="h-5 md:h-6" />
+                            <img src="/linkedin (2).png" alt="LinkedIn" className="h-5 md:h-6" />
                         </a>
 
                         <a
                             href="https://x.com/verity_ai"
                             target="_blank"
-                            aria-label="X"
                             className="opacity-80 hover:opacity-100 transition"
                         >
-                            <img src="/twitter.png" alt="X" className="h-5 md:h-6" />
+                            <img src="/twitter (2).png" alt="X" className="h-5 md:h-6" />
                         </a>
                     </div>
 

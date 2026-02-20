@@ -60,10 +60,10 @@ export default function PricingSection() {
     }
 
     return (
-        <section className="py-16 text-[#171717]">
-            <div className="max-w-7xl mx-auto px-5 text-center">
+        <section className="py-16 text-[#171717] text-center">
+            <div className="max-w-7xl mx-auto px-8 md:px-20">
                 <h2 className="text-4xl font-bold mb-4">
-                    Simple, Transparent Pricing
+                    <span className="text-zinc-600">Simple, Transparent</span> Pricing
                 </h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto mb-14">
                     Choose a plan that fits your AI search visibility goals.

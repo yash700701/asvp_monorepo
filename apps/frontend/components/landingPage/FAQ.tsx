@@ -8,75 +8,79 @@ import {
 export default function FAQ() {
     return (
         <section className="py-10 text-[#171717]">
-            <div className="max-w-7xl mx-auto px-6">
-                <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
-                <Accordion type="single" collapsible className="w-full space-y-4">
+            <div className="max-w-7xl mx-auto px-6 md:px-20 grid md:grid-cols-2 gap-20 items-start">
 
-                    <AccordionItem value="item-1">
-                        <AccordionTrigger>What is ASVP?</AccordionTrigger>
-                        <AccordionContent>
-                            ASVP (AI Search Visibility Platform) helps brands understand how AI models
-                            like ChatGPT and other generative systems describe, recommend, and rank them.
-                            It reveals where competitors are gaining visibility — and shows you how to fix it.
-                        </AccordionContent>
-                    </AccordionItem>
+                {/* LEFT SIDE */}
+                <div>
+                    <p className="text-sm italic text-gray-600 mb-4">
+                        Got Questions?
+                    </p>
 
-                    <AccordionItem value="item-2">
-                        <AccordionTrigger>How is ASVP different from traditional SEO tools?</AccordionTrigger>
-                        <AccordionContent>
-                            Traditional SEO tools optimize for Google rankings. ASVP focuses on AI-driven
-                            responses and recommendations. We analyze how AI models interpret your brand
-                            and provide specific actions to improve visibility in AI-generated answers.
-                        </AccordionContent>
-                    </AccordionItem>
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
+                        Here are the answers.
+                    </h2>
 
-                    <AccordionItem value="item-3">
-                        <AccordionTrigger>Which AI models does ASVP monitor?</AccordionTrigger>
-                        <AccordionContent>
-                            ASVP evaluates how major AI systems reference your brand across generative
-                            search experiences. Our platform continuously adapts as AI models evolve
-                            to ensure your visibility insights stay relevant.
-                        </AccordionContent>
-                    </AccordionItem>
+                    <p className="mt-6 text-lg text-zinc-600 max-w-md">
+                        Everything you need to know about AI visibility and how ASVP
+                        helps your brand stay ahead of competitors in AI-driven search.
+                    </p>
 
-                    <AccordionItem value="item-4">
-                        <AccordionTrigger>Who is ASVP built for?</AccordionTrigger>
-                        <AccordionContent>
-                            ASVP is designed for growth teams, marketing leaders, founders, and
-                            enterprise brands that want to stay visible in AI-driven search environments
-                            before competitors dominate the space.
-                        </AccordionContent>
-                    </AccordionItem>
+                    <button className="mt-8 px-6 py-3 bg-black text-white rounded-full text-sm font-medium shadow-md hover:shadow-lg transition">
+                        Contact Us
+                    </button>
+                </div>
 
-                    <AccordionItem value="item-5">
-                        <AccordionTrigger>How quickly can we see insights?</AccordionTrigger>
-                        <AccordionContent>
-                            Once your brand is added, ASVP begins analyzing AI mentions and
-                            competitive positioning. Initial insights are typically available within minutes.
-                        </AccordionContent>
-                    </AccordionItem>
+                {/* RIGHT SIDE */}
+                <div>
+                    <Accordion
+                        type="single"
+                        collapsible
+                        className="w-full divide-y divide-zinc-200"
+                    >
 
-                    <AccordionItem value="item-6">
-                        <AccordionTrigger>Does ASVP store or access sensitive data?</AccordionTrigger>
-                        <AccordionContent>
-                            No. ASVP analyzes publicly available AI responses and does not access
-                            private company data. We prioritize security and privacy at every layer
-                            of the platform.
-                        </AccordionContent>
-                    </AccordionItem>
+                        <AccordionItem value="item-1">
+                            <AccordionTrigger className="text-left py-6 text-lg font-medium">
+                                What is ASVP?
+                            </AccordionTrigger>
+                            <AccordionContent className="pb-6 text-zinc-600 leading-relaxed">
+                                ASVP helps brands understand how AI models like ChatGPT
+                                describe, recommend, and rank them.
+                            </AccordionContent>
+                        </AccordionItem>
 
-                    <AccordionItem value="item-7">
-                        <AccordionTrigger>Is ASVP suitable for enterprise teams?</AccordionTrigger>
-                        <AccordionContent>
-                            Yes. ASVP is built with scalability in mind and supports enterprise
-                            workflows, competitive monitoring, and long-term AI visibility strategy.
-                        </AccordionContent>
-                    </AccordionItem>
+                        <AccordionItem value="item-2">
+                            <AccordionTrigger className="text-left py-6 text-lg font-medium">
+                                How is ASVP different from traditional SEO tools?
+                            </AccordionTrigger>
+                            <AccordionContent className="pb-6 text-zinc-600 leading-relaxed">
+                                Traditional SEO tools optimize for Google rankings.
+                                ASVP focuses on AI-generated answers and recommendations.
+                            </AccordionContent>
+                        </AccordionItem>
 
-                </Accordion>
+                        <AccordionItem value="item-3">
+                            <AccordionTrigger className="text-left py-6 text-lg font-medium">
+                                Which AI models does ASVP monitor?
+                            </AccordionTrigger>
+                            <AccordionContent className="pb-6 text-zinc-600 leading-relaxed">
+                                ASVP evaluates major AI systems and continuously adapts
+                                as generative models evolve.
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="item-4">
+                            <AccordionTrigger className="text-left py-6 text-lg font-medium">
+                                Can I cancel anytime?
+                            </AccordionTrigger>
+                            <AccordionContent className="pb-6 text-zinc-600 leading-relaxed">
+                                Yes. You can cancel anytime directly from your dashboard.
+                            </AccordionContent>
+                        </AccordionItem>
+
+                    </Accordion>
+                </div>
 
             </div>
         </section>
-    );
+    )
 }
-

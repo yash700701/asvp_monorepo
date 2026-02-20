@@ -58,36 +58,41 @@ router.post("/", requireAuth, async (req, res) => {
  */
 router.get("/", requireAuth, async (req, res) => {
     const { brand_id } = req.query;
+    const customerId = req.user!.customer_id;
 
     try {
-        let result;
+        const values: any[] = [customerId];
+        let brandFilter = "";
 
         if (brand_id) {
-            // Fetch queries for a specific brand
-            result = await db.query(
-                `
-            SELECT id, query_text, frequency, brand_id, query_type, created_at, is_active, is_paused
-            FROM queries
-            WHERE brand_id = $1
-            AND customer_id = $2
-            ORDER BY created_at DESC
-            `,
-                [brand_id, req.user!.customer_id]
-            );
-        } else {
-            // Fetch all queries for the customer
-            result = await db.query(
-                `
-            SELECT id, query_text, frequency, brand_id, query_type, created_at, is_active, is_paused
-            FROM queries
-            WHERE customer_id = $1
-            ORDER BY created_at DESC
-            `,
-                [req.user!.customer_id]
-            );
+            values.push(brand_id);
+            brandFilter = "AND q.brand_id = $2";
         }
 
+        const result = await db.query(
+            `
+            SELECT 
+                q.id,
+                q.query_text,
+                q.frequency,
+                q.brand_id,
+                b.brand_name,
+                q.query_type,
+                q.created_at,
+                q.is_active,
+                q.is_paused
+            FROM queries q
+            JOIN brands b 
+                ON q.brand_id = b.id
+            WHERE q.customer_id = $1 AND q.is_deleted = FALSE
+            ${brandFilter}
+            ORDER BY q.created_at DESC
+            `,
+            values
+        );
+
         res.json(result.rows);
+
     } catch (err) {
         console.error("Failed to fetch queries:", err);
         res.status(500).json({ error: "Internal server error" });
@@ -104,7 +109,7 @@ router.get("/:id", requireAuth, async (req, res) => {
         `
         SELECT *
         FROM queries
-        WHERE id = $1 AND customer_id = $2
+        WHERE id = $1 AND customer_id = $2 AND is_deleted = FALSE
         `,
         [id, req.user!.customer_id]
     );
@@ -118,24 +123,76 @@ router.get("/:id", requireAuth, async (req, res) => {
 
 /**
  * DELETE /queries/:id
+ * Soft delete + terminate schedule + cleanup schedule row
  */
 router.delete("/:id", requireAuth, async (req, res) => {
-    const { id } = req.params;
+    const { id: queryId } = req.params;
 
-    const result = await db.query(
+    const queryRes = await db.query(
         `
-        DELETE FROM queries
-        WHERE id = $1 AND customer_id = $2
-        RETURNING id
+        SELECT q.id, q.is_active, q.schedule_id, qs.workflow_id
+        FROM queries q
+        LEFT JOIN query_schedules qs ON qs.id = q.schedule_id
+        WHERE q.id = $1::uuid
+        AND q.customer_id = $2::uuid
+        AND q.is_deleted = FALSE
         `,
-        [id, req.user!.customer_id]
+        [queryId, req.user!.customer_id]
     );
 
-    if (result.rows.length === 0) {
+    if (queryRes.rows.length === 0) {
         return res.status(404).json({ error: "Query not found" });
     }
 
-    res.json({ deleted: true });
+    const row = queryRes.rows[0];
+
+    if (row.workflow_id) {
+        try {
+            const temporal = await getTemporalClient();
+            const handle = temporal.workflow.getHandle(row.workflow_id);
+            await handle.terminate("Query deleted by user");
+        } catch (err: any) {
+            if (!err.message?.includes("NOT_FOUND")) {
+                console.error("Temporal terminate failed:", err);
+                return res.status(500).json({ error: "Failed to stop workflow" });
+            }
+        }
+    }
+
+    await db.query("BEGIN");
+
+    try {
+        await db.query(
+            `
+            UPDATE queries
+            SET is_deleted = TRUE,
+                deleted_at = NOW(),
+                is_active = FALSE,
+                is_paused = FALSE,
+                schedule_id = NULL
+            WHERE id = $1::uuid
+            AND customer_id = $2::uuid
+            `,
+            [queryId, req.user!.customer_id]
+        );
+
+        if (row.schedule_id) {
+            await db.query(
+                `
+                DELETE FROM query_schedules
+                WHERE id = $1::uuid
+                `,
+                [row.schedule_id]
+            );
+        }
+
+        await db.query("COMMIT");
+        res.json({ deleted: true });
+    } catch (err) {
+        await db.query("ROLLBACK");
+        console.error("Failed to soft-delete query:", err);
+        res.status(500).json({ error: "Failed to delete query" });
+    }
 });
 
 /**
@@ -177,12 +234,12 @@ router.post("/:id/manual-run", requireAuth, async (req, res) => {
 
     const { id: queryId } = req.params;
 
-    // Verify query exists
+    // Verify query exists and is not deleted
     const queryResult = await db.query(
         `
         SELECT id
         FROM queries
-        WHERE id = $1 AND customer_id = $2
+        WHERE id = $1 AND customer_id = $2 AND is_deleted = FALSE
         `,
         [queryId, req.user!.customer_id]
     );
@@ -271,7 +328,7 @@ router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
     // Fetch query & ownership check
     const queryRes = await db.query(
         `
-    SELECT id, frequency, is_active
+    SELECT id, frequency, is_active, is_deleted
     FROM queries
     WHERE id = $1 AND customer_id = $2
     `,
@@ -283,6 +340,10 @@ router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
     }
 
     const query = queryRes.rows[0];
+
+    if (query.is_deleted) {
+        return res.status(400).json({ error: "Deleted query cannot be scheduled" });
+    }
 
     if (query.is_active) {
         return res.status(400).json({ error: "Query already scheduled" });
@@ -396,6 +457,7 @@ router.post("/:id/unschedule", requireAuth, async (req, res) => {
         ON qs.id = q.schedule_id
         WHERE q.id = $1::uuid
         AND q.customer_id = $2::uuid
+        AND q.is_deleted = FALSE
         `,
         [queryId, req.user!.customer_id]
     );
@@ -410,7 +472,7 @@ router.post("/:id/unschedule", requireAuth, async (req, res) => {
         return res.status(400).json({ error: "Query is not scheduled" });
     }
 
-    const { workflow_id, schedule_id } = result.rows[0];
+    const { workflow_id } = result.rows[0];
 
     // TERMINATE Temporal workflow
     try {
@@ -461,6 +523,7 @@ router.post("/:id/pause", requireAuth, async (req, res) => {
         WHERE q.id = $1::uuid
         AND q.customer_id = $2::uuid
         AND q.is_active = true
+        AND q.is_deleted = FALSE
         `,
         [queryId, req.user!.customer_id]
     );
@@ -515,6 +578,7 @@ router.post("/:id/resume", requireAuth, async (req, res) => {
         WHERE q.id = $1::uuid
         AND q.customer_id = $2::uuid
         AND q.is_active = true
+        AND q.is_deleted = FALSE
         `,
         [queryId, req.user!.customer_id]
     );

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/dist/client/link";
 import Image from "next/image";
 
 export default function Footer() {
@@ -28,6 +29,10 @@ export default function Footer() {
                     {/* Center */}
                     <div className="text-xs md:text-sm opacity-80">
                         Verity AI. All rights reserved. © 2026
+                    </div>
+
+                    <div className="text-xs md:text-sm hover:underline opacity-80">
+                        <Link href="/feedback">Feedback</Link>
                     </div>
 
                     {/* Right */}

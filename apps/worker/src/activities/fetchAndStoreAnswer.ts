@@ -17,13 +17,14 @@ export async function fetchAndStoreAnswer(input: {
     );
 
     try {
-        // Get query text
+        // Guard: do not execute deleted queries
         const queryRes = await db.query(
             `
             SELECT q.query_text, q.query_type, s.type AS source_type
             FROM queries q
             JOIN sources s ON s.id = $1
             WHERE q.id = $2
+            AND q.is_deleted = FALSE
             `,
             [input.sourceId, input.queryId]
         );

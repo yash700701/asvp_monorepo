@@ -41,8 +41,8 @@ export default function FeedbackSection() {
     }
 
     return (
-        <div className="bg-[#F4F4F1] h-screen w-full">
-            <section className="mx-auto pt-20 max-w-md rounded-2xl bg-[#F4F4F1] p-8">
+        <div className="bg-white h-screen w-full">
+            <section className="mx-auto pt-20 max-w-md rounded-2xl  p-8">
                 {!submitted ? (
                     <>
                         <div className="space-y-2 text-center">

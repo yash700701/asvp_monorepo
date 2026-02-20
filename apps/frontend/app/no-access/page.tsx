@@ -65,7 +65,7 @@ export default function NoAccessPage() {
 
 
     return (
-        <main className="min-h-screen flex bg-[#E8E8E3] text-[#171717] items-center justify-center p-4">
+        <main className="min-h-screen flex bg-white text-[#171717] items-center justify-center p-4">
             <div className="w-full max-w-md p-8 text-center space-y-6">
                 <div className="space-y-2">
                     <div className="flex flex-col items-center space-y-3">

@@ -30,6 +30,9 @@ ALTER TABLE queries
     ALTER COLUMN schedule_id TYPE uuid
     USING schedule_id::uuid;
 
+ALTER TABLE queries ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE; 
+ALTER TABLE queries ADD COLUMN deleted_at TIMESTAMP DEFAULT NULL;
+
 
 
 

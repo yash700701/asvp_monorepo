@@ -6,7 +6,7 @@ import { loginWithGoogle } from "../../lib/auth";
 
 export default function SignupPage() {
     return (
-        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#E8E8E3]">
+        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-white">
 
         {/* Left Image */}
         <div className="relative hidden lg:block">

@@ -10,6 +10,7 @@ type Brand = {
 type Query = {
     id: string;
     query_text: string;
+    brand_name: string;
     frequency: string;
     brand_id: string;
     query_type: "brand" | "category" | "competitor";
@@ -27,9 +28,11 @@ type Props = {
     runningId: string | null;
     pausingId: string | null;
     activatingId: string | null;
+    deletingId: string | null;
     unschedulingId: string | null;
     onFilterBrandChange: (brandId: string) => void;
     onRunOnce: (queryId: string) => void;
+    onDelete: (queryId: string) => void;
     onActivate: (queryId: string) => void;
     onPause: (queryId: string) => void;
     onResume: (queryId: string) => void;
@@ -45,8 +48,10 @@ export default function QueryList({
     runningId,
     pausingId,
     activatingId,
+    deletingId,
     unschedulingId,
     onFilterBrandChange,
+    onDelete,
     onRunOnce,
     onActivate,
     onPause,
@@ -77,7 +82,7 @@ export default function QueryList({
 
             <div className="border rounded divide-y">
                 {!queriesLoading && queries.length === 0 && (
-                    <p className="p-4 text-sm text-gray-500">No queries found</p>
+                    <p className="p-4 text-sm text-gray-500">No queries found, Add your first query to see how your brand appears in GPT, Gemini & Claude.</p>
                 )}
                 {queryError && (
                     <p className="p-4 text-sm text-red-500">
@@ -108,7 +113,7 @@ export default function QueryList({
                             </div>
 
                             <div className="text-xs text-gray-500 mt-1">
-                                {q.frequency} · {q.query_type}
+                                {q.brand_name} | {q.frequency} | {q.query_type} | created at : {new Date(q.created_at).toLocaleString()} | last run : 
                             </div>
                         </div>
 
@@ -119,6 +124,14 @@ export default function QueryList({
                                 className="text-xs px-3 py-1 rounded border border-gray-400 hover:bg-gray-100 transition disabled:opacity-50"
                             >
                                 {runningId === q.id ? "Running..." : "Run once"}
+                            </button>
+
+                            <button
+                                onClick={() => onDelete(q.id)}
+                                disabled={deletingId === q.id}
+                                className="text-xs px-3 py-1 rounded border border-red-500 text-red-600 hover:bg-red-50 transition"
+                            >
+                                {deletingId === q.id ? "Deleting..." : "Delete"}
                             </button>
 
                             {!q.is_active && (

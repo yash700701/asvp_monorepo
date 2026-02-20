@@ -8,6 +8,7 @@ import QueryList from "@/components/queryPage/QueryList";
 type Query = {
     id: string;
     query_text: string;
+    brand_name: string;
     frequency: string;
     brand_id: string;
     query_type: "brand" | "category" | "competitor";
@@ -24,6 +25,7 @@ export default function NewQueryPage() {
     const [pausingId, setPausingId] = useState<string | null>(null);
     const [unschedulingId, setUnschedulingId] = useState<string | null>(null);
     const [runningId, setRunningId] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
     const [queriesLoading, setQueriesLoading] = useState(false);
     const [queryError, setQueryError] = useState<string | null>(null);
     const [filterBrandId, setFilterBrandId] = useState("");
@@ -67,6 +69,25 @@ export default function NewQueryPage() {
 
         const res = await axios.get(url, { withCredentials: true });
         setQueries(res.data);
+    }
+
+    async function deleteQuery(queryId: string) {
+        if (!confirm("Delete this query? This action cannot be undone.")) {
+            return;
+        }
+
+        try {
+            setDeletingId(queryId);
+            await axios.delete(
+                `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}`,
+                { withCredentials: true }
+            );
+            await refreshQueries();
+        } catch (err: any) {
+            alert(err.response?.data?.error || "Failed to delete query");
+        } finally {            
+            setDeletingId(null);
+        }
     }
 
     async function activateQuery(queryId: string) {
@@ -182,9 +203,11 @@ export default function NewQueryPage() {
                 runningId={runningId}
                 pausingId={pausingId}
                 activatingId={activatingId}
+                deletingId={deletingId}
                 unschedulingId={unschedulingId}
                 onFilterBrandChange={setFilterBrandId}
                 onRunOnce={runOnce}
+                onDelete={deleteQuery}
                 onActivate={activateQuery}
                 onPause={pauseQuery}
                 onResume={resumeQuery}

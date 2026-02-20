@@ -30,9 +30,9 @@ export default function Header() {
 
                 <Link href="/" className="flex items-center gap-2">
                     <div className="h-10 w-10 flex items-center justify-center">
-                        <Image src="/logo.png" alt="Logo" width={50} height={50} />
+                        <Image src="/logo_black.png" alt="Logo" width={50} height={50} />
                     </div>
-                    <span className="text-2xl font-bold text-[#171717] tracking-tight">
+                    <span className="text-xl md:text-2xl font-bold text-[#171717] tracking-tight">
                         VerityAI
                     </span>
                 </Link>

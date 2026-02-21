@@ -9,7 +9,7 @@ const router = Router();
  * body: { brand_name: string, canonical_urls: string[] }
  */
 router.post("/", requireAuth, async (req, res) => {
-    const { brand_name, canonical_urls } = req.body;
+    const { brand_name, canonical_urls, description, logo_url, competitors } = req.body;
 
     if (!brand_name || !Array.isArray(canonical_urls)) {
         return res.status(400).json({ error: "Invalid payload" });
@@ -18,11 +18,11 @@ router.post("/", requireAuth, async (req, res) => {
     try {
         const result = await db.query(
         `
-        INSERT INTO brands (customer_id, brand_name, canonical_urls)
-        VALUES ($1, $2, $3)
+        INSERT INTO brands (customer_id, brand_name, canonical_urls, description, logo_url, competitors)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
         `,
-        [req.user!.customer_id, brand_name, canonical_urls]
+        [req.user!.customer_id, brand_name, canonical_urls, description, logo_url, competitors]
         );
 
         res.status(201).json(result.rows[0]);

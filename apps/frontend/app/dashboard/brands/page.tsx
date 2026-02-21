@@ -1,109 +1,88 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
+import AddBrandForm from "@/components/brandsPage/AddBrandForm";
+import BrandStats from "@/components/brandsPage/BrandStats";
+import BrandList from "@/components/brandsPage/BrandList";
+
+type brands = {
+  id: string;
+  brand_name: string;
+  canonical_urls: string[];
+  description: string;
+  logo_url: string;
+  competitors: string[];
+};
+
 export default function NewBrandPage() {
-  const [name, setName] = useState("");
-  const [urls, setUrls] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
-  const router = useRouter();
+  const [brands, setBrands] = useState<brands[]>([]);
+  const [brandsCount, setBrandsCount] = useState(0);
+  const [queryCount, setQueryCount] = useState(0);
+  const [activeQueryCount, setActiveQueryCount] = useState(0);
+  const [visibility, setVisibility] = useState(72);
 
-  async function submit() {
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
+  const [fetchBrandsError, setFetchBrandsError] = useState<string | null>(null);
+  const [brandsLoading, setBrandsLoading] = useState(false);
 
-    try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE}/brands`,
-        {
-          brand_name: name,
-          canonical_urls: urls
-            .split("\n")
-            .map((u) => u.trim())
-            .filter(Boolean),
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  useEffect(() => {
+    setBrandsLoading(true);
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_BASE}/brands`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setBrands(res.data);
+        setBrandsCount(res.data.length);
+      })
+      .catch(() => setFetchBrandsError("Failed to load brands"))
+      .finally(() => setBrandsLoading(false));
+  }, []);
 
-      // ✅ Success handling
-      setSuccess("Brand added successfully");
-      setName("");
-      setUrls("");
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_BASE}/queries`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setQueryCount(res.data.length);
+        const activeCount = res.data.filter((q: any) => q.is_active && !q.is_paused).length;
+        setActiveQueryCount(activeCount);
+      })
+      .catch(() => setFetchBrandsError("Failed to load queries"));
+  }, []);
 
-      // Hide success message after 3 seconds
-      setTimeout(() => {
-        setSuccess(null);
-      }, 3000);
-    } catch (err: any) {
-      if (axios.isAxiosError(err)) {
-        setError(
-          err.response?.data?.error || err.response?.data?.message || "Failed to create brand"
-        );
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
+  async function refreshBrands() {
+    setBrandsLoading(true);
+    axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/brands`, {
+      withCredentials: true,
+    })
+      .then((res) => {
+        setBrands(res.data);
+        setBrandsCount(res.data.length);
+      })
+      .catch(() => setFetchBrandsError("Failed to load brands"))
+      .finally(() => setBrandsLoading(false));
   }
 
   return (
-    <main className="pt-28 sm:pt-0 max-w-xl space-y-2">
-      <h1 className="text-xl font-bold">Add Brand</h1>
+    <main className="pt-28 sm:pt-0 space-y-8">
 
-      {/* ✅ Success message */}
-      {success && (
-        <div className="rounded border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-700">
-          {success}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="lg:col-span-1">
+          <AddBrandForm refreshBrands={refreshBrands} />
         </div>
-      )}
-
-      {/* ❌ Error message */}
-      {error && (
-        <div className="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
+        <div className="lg:col-span-1">
+          <BrandStats brandsCount={brandsCount} queryCount={queryCount} activeQueryCount={activeQueryCount} visibility={visibility} />
         </div>
-      )}
-
-      <div>
-        <label className="text-sm font-medium">Brand name</label>
-        <input
-          className="w-full border rounded p-2 mt-1"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          disabled={loading}
-        />
       </div>
 
-      <div>
-        <label className="text-sm font-medium">Canonical URLs (one per line)</label>
-        <textarea
-          className="w-full border rounded p-2 mt-1"
-          rows={4}
-          value={urls}
-          onChange={(e) => setUrls(e.target.value)}
-          disabled={loading}
-        />
+      <div className="lg:col-span-2">
+        <BrandList brands={brands} brandsLoading={brandsLoading} fetchError={fetchBrandsError} />
       </div>
 
-      <button
-        onClick={submit}
-        disabled={loading}
-        className="bg-black text-white cursor-pointer px-4 py-2 rounded disabled:opacity-60"
-      >
-        {loading ? "Saving..." : "Create Brand"}
-      </button>
     </main>
   );
 }

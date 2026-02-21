@@ -63,12 +63,21 @@ export default function NewQueryPage() {
     }, [filterBrandId]);
 
     async function refreshQueries() {
-        const url = filterBrandId
-            ? `${process.env.NEXT_PUBLIC_API_BASE}/queries?brand_id=${filterBrandId}`
-            : `${process.env.NEXT_PUBLIC_API_BASE}/queries`;
+        setQueriesLoading(true);
+        setQueryError(null);
 
-        const res = await axios.get(url, { withCredentials: true });
-        setQueries(res.data);
+        try {
+            const url = filterBrandId
+                ? `${process.env.NEXT_PUBLIC_API_BASE}/queries?brand_id=${filterBrandId}`
+                : `${process.env.NEXT_PUBLIC_API_BASE}/queries`;
+
+            const res = await axios.get(url, { withCredentials: true });
+            setQueries(res.data);
+        } catch {
+            setQueryError("Failed to load queries");
+        } finally {
+            setQueriesLoading(false);
+        }
     }
 
     async function deleteQuery(queryId: string) {
@@ -85,7 +94,7 @@ export default function NewQueryPage() {
             await refreshQueries();
         } catch (err: any) {
             alert(err.response?.data?.error || "Failed to delete query");
-        } finally {            
+        } finally {
             setDeletingId(null);
         }
     }
@@ -103,8 +112,8 @@ export default function NewQueryPage() {
         } catch (err: any) {
             alert(
                 err.response?.data?.error ||
-                    err.response?.data?.message ||
-                    "Failed to activate query"
+                err.response?.data?.message ||
+                "Failed to activate query"
             );
         } finally {
             setActivatingId(null);
@@ -126,8 +135,8 @@ export default function NewQueryPage() {
         } catch (err: any) {
             alert(
                 err.response?.data?.error ||
-                    err.response?.data?.message ||
-                    "Failed to run query"
+                err.response?.data?.message ||
+                "Failed to run query"
             );
         } finally {
             setRunningId(null);

@@ -10,6 +10,12 @@ CREATE TABLE IF NOT EXISTS brands (
 CREATE INDEX IF NOT EXISTS idx_brands_customer_id ON brands(customer_id);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_customer_brand ON brands(customer_id, brand_name);
 
+ALTER TABLE brands 
+ADD COLUMN description TEXT,
+ADD COLUMN logo_url TEXT,
+ADD COLUMN competitors TEXT[] default '{}';
+
+
 -- ALTER TABLE brands ENABLE ROW LEVEL SECURITY;
 
 -- CREATE POLICY brands_isolation

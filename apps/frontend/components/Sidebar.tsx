@@ -3,17 +3,17 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { BarChart, Search, Settings, Menu } from "lucide-react";
+import { BarChart, Search, Settings, Menu, Building2, LayoutDashboard, Bell, Lightbulb, Gauge } from "lucide-react";
 import clsx from "clsx";
 
 const items = [
-    { name: "Dashboard", href: "/dashboard", icon: BarChart },
-    { name: "Brands", href: "/dashboard/brands", icon: BarChart },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Brands", href: "/dashboard/brands", icon: Building2 },
     { name: "Queries", href: "/dashboard/queries", icon: Search },
     { name: "Analytics", href: "/dashboard/analytics", icon: BarChart },
-    { name: "Alerts", href: "/dashboard/alerts", icon: BarChart },
-    { name: "Recommendations", href: "/dashboard/recommendations", icon: BarChart },
-    { name: "Usage", href: "/dashboard/usage", icon: BarChart },
+    { name: "Alerts", href: "/dashboard/alerts", icon: Bell },
+    { name: "Recommendations", href: "/dashboard/recommendations", icon: Lightbulb },
+    { name: "Usage", href: "/dashboard/usage", icon: Gauge },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

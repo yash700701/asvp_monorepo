@@ -79,7 +79,7 @@ export default function AddQueryForm({ brands, onCreated }: Props) {
     }
 
     return (
-        <section className="space-y-3 max-w-md w-full bg-white p-5 rounded-xl">
+        <section className="space-y-2 shadow-sm max-w-md w-full bg-white p-5 rounded-xl">
             <div className="flex justify-between">
                 <h1 className="text-lg font-bold">Add Query</h1>
                 {error && (

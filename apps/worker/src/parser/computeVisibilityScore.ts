@@ -2,20 +2,19 @@ const SOURCE_WEIGHTS = {
     chatgpt: 0.85,
     gemini: 0.8,
     perplexity: 0.9,
-    web: 0.6,
+    googleOverview: 0.8,
     unknown: 0.5
 };
 
 type LinkedEntity = {
-    entity_id: string;          // canonical ID
-    name: string;               // surface form from text
+    entity_id: string;
+    name: string;
     canonical_name: string;
     type: "Brand" | "Company" | "Product";
-    confidence: number;         // linking confidence
-    relevance: number;          // from Phase 2 + 3
+    confidence: number;
+    relevance: number;
     sentence_index: number;
 };
-
 
 function sourceTrust(source: keyof typeof SOURCE_WEIGHTS): number {
     return SOURCE_WEIGHTS[source] ?? SOURCE_WEIGHTS.unknown;
@@ -23,7 +22,7 @@ function sourceTrust(source: keyof typeof SOURCE_WEIGHTS): number {
 
 function structureScore(text: string): number {
     let score = 0.4;
-    if (text.includes("\n-") || text.includes("\n•")) score += 0.2;
+    if (text.includes("\n-") || text.includes("\n�")) score += 0.2;
     if (text.match(/\n\d+\./)) score += 0.2;
     if (text.split("\n\n").length >= 2) score += 0.2;
     return Math.min(score, 1);
@@ -40,9 +39,7 @@ function brandPresenceScore(
     linkedEntities: LinkedEntity[],
     prominenceScore: number
 ): number {
-    const brandEntities = linkedEntities.filter(
-        e => e.type === "Brand"
-    );
+    const brandEntities = linkedEntities.filter((e) => e.type === "Brand");
 
     if (brandEntities.length === 0) return 0;
 
@@ -79,9 +76,13 @@ function sentimentScore(sentiment: {
 }
 
 export function computeVisibilityScore(input: {
-    source: "chatgpt" | "gemini" | "perplexity" | "web" | "unknown";
+    source: "chatgpt" | "gemini" | "perplexity" | "googleOverview" | "unknown";
     text: string;
-    prominence: { score: number };
+    prominence: {
+        score: number;
+        first_sentence_index: number;
+        best_sentence: string | null;
+    };
     linkedEntities: LinkedEntity[];
     sentiment: { score: number };
 }) {
@@ -92,10 +93,7 @@ export function computeVisibilityScore(input: {
     );
     const sentimentVal = sentimentScore(input.sentiment);
 
-    const finalScore =
-        trust * 0.35 +
-        brandPresence * 0.45 +
-        sentimentVal * 0.2;
+    const finalScore = trust * 0.35 + brandPresence * 0.45 + sentimentVal * 0.2;
 
     return {
         visibility_score: Math.round(finalScore * 100),
@@ -106,9 +104,3 @@ export function computeVisibilityScore(input: {
         }
     };
 }
-
-
-
-
-
-

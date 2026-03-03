@@ -30,7 +30,7 @@ const PLAN_DETAILS: Record<
     pro: {
         name: "Pro",
         description: "For growing brands",
-        price: "₹2,999 / month",
+        price: "₹999 / month",
         features: [
             "Up to 10,000 query runs",
             "Advanced analytics",
@@ -85,7 +85,6 @@ export default function BillingUsagePage() {
         <main className="max-w-3xl pt-28 sm:pt-0 space-y-2">
             <h1 className="text-2xl font-bold">Usage & Billing</h1>
 
-            {/* ================= Usage ================= */}
             <section className="border rounded-lg p-4 space-y-3">
                 <h2 className="text-lg font-semibold">Usage</h2>
 
@@ -104,7 +103,6 @@ export default function BillingUsagePage() {
                 )}
             </section>
 
-            {/* ================= Current Plan ================= */}
             {usage && plan && (
                 <section className="border rounded-lg p-4 space-y-4">
                     <div className="flex items-center justify-between">
@@ -134,7 +132,6 @@ export default function BillingUsagePage() {
                 </section>
             )}
 
-            {/* ================= Pricing ================= */}
             {showPricing && (
                 <section ref={pricingRef} className="pt-5">
                     <PricingSection />

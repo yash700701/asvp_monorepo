@@ -1,17 +1,36 @@
 export type ParserInput = {
     raw_text: string;
     brandNames: string[];
+    source: "chatgpt" | "gemini" | "perplexity" | "googleOverview" | "unknown";
 };
 
 export type ParsedOutput = {
-    main_snippet: string;
     mentions_brand: boolean;
-    confidence: number;
-    sentiment: "positive" | "neutral" | "negative";
-    prominence: number;
+    confidence: {
+        visibility_score: number;
+        breakdown: {
+            trust: number;
+            brandPresence: number;
+            sentiment: number;
+        };
+    };
+    sentiment: {
+        label: "positive" | "neutral" | "negative";
+        score: number;
+        similarities: Record<string, number>;
+    };
+    prominence: {
+        score: number;
+        first_sentence_index: number;
+        best_sentence: string | null;
+    };
     entities: Array<{
+        entity_id: string;
         name: string;
-        type: "Brand" | "Product" | "Company" | "Person" | "Location" | "Other";
+        canonical_name: string;
+        type: string;
+        confidence: number;
         relevance: number;
+        sentence_index: number | null;
     }>;
 };

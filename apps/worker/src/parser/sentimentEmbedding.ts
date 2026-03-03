@@ -94,3 +94,55 @@ export async function detectSentimentEmbedding(text: string): Promise<{
         }
     };
 }
+
+// mock test
+export function detectSentimentEmbeddingMock(
+    text: string
+): {
+    label: "positive" | "neutral" | "negative";
+    score: number;
+    similarities: Record<string, number>;
+} {
+    // Generate base random values
+    const basePositive = Math.random() * 0.4 + 0.4; // 0.4 - 0.8
+    const baseNegative = Math.random() * 0.4;       // 0 - 0.4
+    const baseNeutral = Math.random() * 0.3 + 0.3;  // 0.3 - 0.6
+
+    const simPositive = Number(basePositive.toFixed(3));
+    const simNeutral = Number(baseNeutral.toFixed(3));
+    const simNegative = Number(baseNegative.toFixed(3));
+
+    // Decide label based on highest similarity
+    let label: "positive" | "neutral" | "negative" = "neutral";
+    let maxSim = simNeutral;
+
+    if (simPositive > maxSim) {
+        label = "positive";
+        maxSim = simPositive;
+    }
+
+    if (simNegative > maxSim) {
+        label = "negative";
+        maxSim = simNegative;
+    }
+
+    const score = Number((simPositive - simNegative).toFixed(3));
+
+    return {
+        label,
+        score,
+        similarities: {
+            positive: simPositive,
+            neutral: simNeutral,
+            negative: simNegative
+        }
+    };
+}
+
+export async function detectSentimentWrapper(text: string) {
+    if (process.env.USE_MOCK_PARSER === "true") {
+        return detectSentimentEmbeddingMock(text);
+    }
+
+    return detectSentimentEmbedding(text);
+}

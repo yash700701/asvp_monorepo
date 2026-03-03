@@ -2,12 +2,12 @@ import { extractEntitiesNER } from "./nerClient";
 import { linkEntity } from "./unifiedEntityLinker";
 
 type LinkedEntity = {
-    entity_id: string;          // canonical ID
-    name: string;               // surface form from text
+    entity_id: string;       
+    name: string;         
     canonical_name: string;
     type: "Brand" | "Company" | "Product";
-    confidence: number;         // linking confidence
-    relevance: number;          // from Phase 2 + 3
+    confidence: number;  
+    relevance: number;    
     sentence_index: number;
 };
 

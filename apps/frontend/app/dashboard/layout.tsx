@@ -9,7 +9,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
         <div className="flex h-screen bg-[#F5F5F4]">
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-        <main className="flex-1 text-[#171717] overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 text-[#171717] overflow-y-auto p-4">{children}</main>
         </div>
     );
 }

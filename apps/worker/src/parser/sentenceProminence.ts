@@ -92,3 +92,65 @@ export async function computeSentenceLevelProminence(
         best_sentence: bestSentence
     };
 }
+
+// mock version
+export function computeSentenceLevelProminenceMock(
+    text: string,
+    brandNames: string[]
+): {
+    score: number;
+    first_sentence_index: number;
+    best_sentence: string | null;
+} {
+    const sentences = splitSentences(text);
+
+    if (sentences.length === 0) {
+        return { score: 0, first_sentence_index: -1, best_sentence: null };
+    }
+
+    const lowerBrands = brandNames.map(b => b.toLowerCase());
+
+    let bestSentenceIndex = -1;
+    let bestSentence: string | null = null;
+
+    for (let i = 0; i < sentences.length; i++) {
+        const sentenceLower = sentences[i].toLowerCase();
+
+        const mentionsBrand = lowerBrands.some(b =>
+            sentenceLower.includes(b)
+        );
+
+        if (mentionsBrand) {
+            bestSentenceIndex = i;
+            bestSentence = sentences[i];
+            break; // first occurrence
+        }
+    }
+
+    if (bestSentenceIndex === -1) {
+        return { score: 0, first_sentence_index: -1, best_sentence: null };
+    }
+
+    // Simulate prominence logic
+    const positionWeight = 1 - bestSentenceIndex / sentences.length;
+    const randomImportance = Math.random() * 0.5 + 0.5; // 0.5 - 1
+
+    const score = Number((positionWeight * randomImportance).toFixed(3));
+
+    return {
+        score,
+        first_sentence_index: bestSentenceIndex,
+        best_sentence: bestSentence
+    };
+}
+
+export async function computeSentenceLevelProminenceWrapper(
+    text: string,
+    brandNames: string[]
+) {
+    if (process.env.USE_MOCK_PARSER === "true") {
+        return computeSentenceLevelProminenceMock(text, brandNames);
+    }
+
+    return computeSentenceLevelProminence(text, brandNames);
+}

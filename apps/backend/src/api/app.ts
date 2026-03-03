@@ -16,6 +16,7 @@ import billingRoutes from "../routes/billing";
 import feedbackRoutes from "../routes/feedback";
 import noAccessRoutes from "../routes/noAccessRoutes";
 import { apiLimiter } from "../middleware/rateLimit";
+import dashboardRoute from "../routes/dashboard"
 
 export const createApp = () => {
     const app = express();
@@ -44,5 +45,6 @@ export const createApp = () => {
     app.use("/billing", apiLimiter, billingRoutes);
     app.use("/feedback", feedbackRoutes);
     app.use("/no-access", noAccessRoutes);
+    app.use("/dashboard", apiLimiter, dashboardRoute); 
     return app;
 };

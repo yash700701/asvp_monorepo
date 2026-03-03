@@ -237,7 +237,7 @@ router.post("/:id/manual-run", requireAuth, async (req, res) => {
     // Verify query exists and is not deleted
     const queryResult = await db.query(
         `
-        SELECT id
+        SELECT id, brand_id
         FROM queries
         WHERE id = $1 AND customer_id = $2 AND is_deleted = FALSE
         `,
@@ -247,6 +247,8 @@ router.post("/:id/manual-run", requireAuth, async (req, res) => {
     if (queryResult.rows.length === 0) {
         return res.status(404).json({ error: "Query not found" });
     }
+
+    const brandId = queryResult.rows[0].brand_id;
 
     // Prefer Gemini for zero-cost testing, fallback to ChatGPT
     const sourceRes = await db.query(
@@ -276,6 +278,7 @@ router.post("/:id/manual-run", requireAuth, async (req, res) => {
                 queryId,
                 sourceId,
                 customer_id: req.user!.customer_id,
+                brand_id: brandId
             },
         ],
     });
@@ -328,10 +331,10 @@ router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
     // Fetch query & ownership check
     const queryRes = await db.query(
         `
-    SELECT id, frequency, is_active, is_deleted
-    FROM queries
-    WHERE id = $1 AND customer_id = $2
-    `,
+        SELECT id, frequency, is_active, is_deleted, brand_id
+        FROM queries
+        WHERE id = $1 AND customer_id = $2
+        `,
         [queryId, req.user!.customer_id]
     );
 
@@ -340,6 +343,7 @@ router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
     }
 
     const query = queryRes.rows[0];
+    const brandId = query.brand_id;
 
     if (query.is_deleted) {
         return res.status(400).json({ error: "Deleted query cannot be scheduled" });
@@ -384,7 +388,7 @@ router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
             workflowId,
             cronSchedule: cron,
             workflowExecutionTimeout: "365 days",
-            args: [{ queryId, sourceId, customer_id: req.user!.customer_id }],
+            args: [{ queryId, sourceId, customer_id: req.user!.customer_id, brand_id: brandId }],
         });
     } catch (err: any) {
         if (err instanceof WorkflowExecutionAlreadyStartedError) {

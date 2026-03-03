@@ -23,6 +23,7 @@ export async function querySchedulerWorkflow(input: {
     queryId: string;
     sourceId: string;
     customer_id: string;
+    brand_id: string;
 }) {
     let paused = false;
 

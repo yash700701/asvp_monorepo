@@ -62,6 +62,9 @@ ADD COLUMN brand_id TEXT;
 CREATE INDEX idx_answers_customer_brand
 ON answers (customer_id, brand_id);
 
+CREATE INDEX idx_answers_customer_brand_time
+ON answers (customer_id, brand_id, created_at DESC);
+
 
 -- ALTER TABLE answers ENABLE ROW LEVEL SECURITY;
 

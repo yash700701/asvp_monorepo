@@ -107,4 +107,33 @@ router.get("/sentiment-overview", async (req, res) => {
     }
 });
 
+router.get("/prominenceTrend", async (req, res) => {
+    try {        
+        const { brandId } = req.query;
+        const customerId = req.user?.customer_id;
+        if (!brandId || typeof brandId !== "string") {
+            return res.status(400).json({ error: "brandId required" });
+        }
+
+        const query = `
+        SELECT
+        created_at,
+        prominence_score,
+        (prominence_data->>'first_sentence_index')::int AS first_sentence_index,
+        COALESCE(prominence_data->>'best_sentence', '') AS best_sentence
+        FROM answers
+        WHERE customer_id = $1
+        AND brand_id = $2
+        ORDER BY created_at DESC
+        LIMIT 100;
+        `;
+
+        const result = await db.query(query, [customerId, brandId]);
+        return res.json({ success: true, data: result.rows});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 export default router;

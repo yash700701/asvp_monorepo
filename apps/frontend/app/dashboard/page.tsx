@@ -7,6 +7,7 @@ import VisibilityOverview from "@/components/dashboard/VisibilityOverview";
 import KPIGrid from "@/components/dashboard/KPIGrid";
 import BrandMentionsDashboard from "@/components/dashboard/BrandMentions";
 import SentimentDashboard from "@/components/dashboard/Sentiment";
+import ProminenceDashboard from "@/components/dashboard/prominence";
 
 type Brand = {
     id: string;
@@ -71,6 +72,14 @@ export default function DashboardPage() {
             ) : (
                 <div className="rounded-md border bg-white p-4 text-sm text-gray-500">
                     Select a brand to view sentiment overview.
+                </div>
+            )}
+
+            {selectedBrandId ? (
+                <ProminenceDashboard brandId={selectedBrandId} />
+            ) : (
+                <div className="rounded-md border bg-white p-4 text-sm text-gray-500">
+                    Select a brand to view prominence overview.
                 </div>
             )}
         </div>

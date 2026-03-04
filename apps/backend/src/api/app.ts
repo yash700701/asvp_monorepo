@@ -3,6 +3,7 @@ import cors from "cors";
 import passport from "passport";
 import cookieParser from "cookie-parser";
 import "../auth/google";
+
 import healthRoute from "../routes/health";
 import brandsRoute from "../routes/brands";
 import queriesRoute from "../routes/queries";
@@ -15,8 +16,10 @@ import usageRoutes from "../routes/usage";
 import billingRoutes from "../routes/billing";
 import feedbackRoutes from "../routes/feedback";
 import noAccessRoutes from "../routes/noAccessRoutes";
-import { apiLimiter } from "../middleware/rateLimit";
 import dashboardRoute from "../routes/dashboard"
+
+import { apiLimiter } from "../middleware/rateLimit";
+import { requireAuth } from "../middleware/requireAuth";
 
 export const createApp = () => {
     const app = express();
@@ -45,6 +48,6 @@ export const createApp = () => {
     app.use("/billing", apiLimiter, billingRoutes);
     app.use("/feedback", feedbackRoutes);
     app.use("/no-access", noAccessRoutes);
-    app.use("/dashboard", apiLimiter, dashboardRoute); 
+    app.use("/dashboard", apiLimiter, requireAuth, dashboardRoute); 
     return app;
 };

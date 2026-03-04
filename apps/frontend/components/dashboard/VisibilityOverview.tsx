@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/shadcn/card";
 import { AlertTriangle } from "lucide-react";
 import {
   LineChart,
@@ -15,8 +15,8 @@ import {
   Area
 } from "recharts";
 import { motion } from "framer-motion";
+import axios from "axios";
 
-// ================= TYPES =================
 type RunRow = {
   created_at: string;
   visibility_score: number;
@@ -32,10 +32,17 @@ export default function VisibilityOverview({ brandId }: { brandId: string }) {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const res = await fetch(`/api/visibility-overview?brandId=${brandId}`);
-      const json = await res.json();
-      setData(json.data || []);
-      setLoading(false);
+      try {
+        const res = axios.get(`http://localhost:4000/dashboard/visibility-overview?brandId=${brandId}`, {
+          withCredentials: true,
+        });
+        const json = (await res).data;
+        setData(json.data || []);
+      } catch (error) {
+        console.error("Error fetching visibility overview data:", error); 
+      } finally {
+        setLoading(false);
+      }
     }
 
     fetchData();
@@ -58,12 +65,12 @@ export default function VisibilityOverview({ brandId }: { brandId: string }) {
   const last7 = sorted.slice(-7);
   const avg7 =
     last7.reduce((acc, cur) => acc + (cur.visibility_score || 0), 0) /
-      (last7.length || 1);
+    (last7.length || 1);
 
   const previous7 = sorted.slice(-14, -7);
   const prevAvg =
     previous7.reduce((acc, cur) => acc + (cur.visibility_score || 0), 0) /
-      (previous7.length || 1);
+    (previous7.length || 1);
 
   const change = prevAvg ? ((avg7 - prevAvg) / prevAvg) * 100 : 0;
 
@@ -120,9 +127,8 @@ export default function VisibilityOverview({ brandId }: { brandId: string }) {
             <div>
               <p className="text-sm text-muted-foreground">Change</p>
               <p
-                className={`text-2xl font-bold ${
-                  change >= 0 ? "text-green-600" : "text-red-600"
-                }`}
+                className={`text-2xl font-bold ${change >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
               >
                 {change >= 0 ? "+" : ""}
                 {change.toFixed(1)}%

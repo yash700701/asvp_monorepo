@@ -8,15 +8,17 @@ type Brand = {
     name: string
 }
 
-export default function TopBar() {
-    // Mock brands (replace later with API)
-    const brands: Brand[] = [
-        { id: "1", name: "Zepto" },
-        { id: "2", name: "Apple" },
-        { id: "3", name: "Uber" },
-    ]
+type TopBarProps = {
+    brands: Brand[]
+    selectedBrandId: string | null
+    onSelectBrand: (brandId: string) => void
+}
 
-    const [selectedBrand, setSelectedBrand] = useState<Brand>(brands[0])
+export default function TopBar({
+    brands,
+    selectedBrandId,
+    onSelectBrand
+}: TopBarProps) {
     const [showBrandDropdown, setShowBrandDropdown] = useState(false)
 
     const [dateRange, setDateRange] = useState("Last 7 days")
@@ -30,8 +32,11 @@ export default function TopBar() {
         "Custom Range",
     ]
 
+    const selectedBrand =
+        brands.find((brand) => brand.id === selectedBrandId) || null
+
     const handleExport = () => {
-        alert(`Exporting data for ${selectedBrand.name} (${dateRange})`)
+        alert(`Exporting data for ${selectedBrand?.name || "Unknown"} (${dateRange})`)
     }
 
     return (
@@ -43,7 +48,7 @@ export default function TopBar() {
                     onClick={() => setShowBrandDropdown(!showBrandDropdown)}
                     className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition"
                 >
-                    {selectedBrand.name}
+                    {selectedBrand?.name || "Select brand"}
                     <ChevronDown size={16} />
                 </button>
 
@@ -53,7 +58,7 @@ export default function TopBar() {
                             <button
                                 key={brand.id}
                                 onClick={() => {
-                                    setSelectedBrand(brand)
+                                    onSelectBrand(brand.id)
                                     setShowBrandDropdown(false)
                                 }}
                                 className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 rounded-xl"

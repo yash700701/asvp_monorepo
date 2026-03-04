@@ -1,120 +1,78 @@
-// import KPIGrid from "@/components/dashboard/kpi/KPIGrid";
-// import VisibilityTrendChart from "@/components/dashboard/charts/VisibilityTrendChart";
-// import SentimentChart from "@/components/dashboard/charts/SentimentChart";
-// import ProminenceChart from "@/components/dashboard/charts/ProminenceChart";
-// import CompetitorChart from "@/components/dashboard/charts/CompetitorChart";
-// import AnswerTable from "@/components/dashboard/tables/AnswerTable";
-// import AlertsPanel from "@/components/dashboard/alerts/AlertsPanel";
+"use client";
 
-// export default function DashboardPage() {
-//     return (
-//         <div className="space-y-6">
-//             <KPIGrid />
-//             <VisibilityTrendChart />
-//             <div className="grid grid-cols-2 gap-6">
-//                 <SentimentChart />
-//                 <ProminenceChart />
-//             </div>
-//             <CompetitorChart />
-//             <AlertsPanel />
-//             <AnswerTable />
-//         </div>
-//     );
-// }
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import TopBar from "@/components/dashboard/TopBar";
+import VisibilityOverview from "@/components/dashboard/VisibilityOverview";
+import KPIGrid from "@/components/dashboard/KPIGrid";
+import BrandMentionsDashboard from "@/components/dashboard/BrandMentions";
+import SentimentDashboard from "@/components/dashboard/Sentiment";
 
+type Brand = {
+    id: string;
+    brand_name: string;
+};
 
+export default function DashboardPage() {
+    const [brands, setBrands] = useState<Brand[]>([]);
+    const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
 
-"use client"
+    useEffect(() => {
+        async function loadBrands() {
+            try {
+                const res = await axios.get(
+                    `${process.env.NEXT_PUBLIC_API_BASE}/brands`,
+                    { withCredentials: true }
+                );
+                const data = Array.isArray(res.data) ? res.data : [];
+                setBrands(data);
+                if (data.length > 0) {
+                    setSelectedBrandId(data[0].id);
+                }
+            } catch {
+                setBrands([]);
+            }
+        }
 
-import { useEffect, useState } from "react";
+        loadBrands();
+    }, []);
 
-import TopBar from "@/components/dashboard/TopBar"
-import KPIGrid from "@/components/dashboard/KPIGrid"
-
-export default function DashboardSkeleton() {
-
-    // const [brands, setBrands] = useState<>([])
-
-    // useEffect(() => {
-    //     setBrandsLoading(true);
-    //     axios
-    //         .get(`${process.env.NEXT_PUBLIC_API_BASE}/brands`, {
-    //             withCredentials: true,
-    //         })
-    //         .then((res) => {
-    //             setBrands(res.data);
-    //             setBrandsCount(res.data.length);
-    //         })
-    //         .catch(() => setFetchBrandsError("Failed to load brands"))
-    //         .finally(() => setBrandsLoading(false));
-    // }, []);
+    const topBarBrands = useMemo(
+        () => brands.map((b) => ({ id: b.id, name: b.brand_name })),
+        [brands]
+    );
 
     return (
-        <div className="flex min-h-screen bg-gray-50 mt-24 sm:mt-0">
+        <div className="space-y-6">
+            <TopBar
+                brands={topBarBrands}
+                selectedBrandId={selectedBrandId}
+                onSelectBrand={setSelectedBrandId}
+            />
+            <KPIGrid />
+            {selectedBrandId ? (
+                <VisibilityOverview brandId={selectedBrandId} />
+            ) : (
+                <div className="rounded-md border bg-white p-4 text-sm text-gray-500">
+                    Select a brand to view visibility overview.
+                </div>
+            )}
 
-            {/* Main */}
-            <div className="flex-1 flex flex-col">
-                <TopBar />
+            {selectedBrandId ? (
+                <BrandMentionsDashboard brandId={selectedBrandId} />
+            ) : (
+                <div className="rounded-md border bg-white p-4 text-sm text-gray-500">
+                    Select a brand to view brand mentions.
+                </div>
+            )}
 
-                {/* Content */}
-                <main className="p-4 space-y-4">
-
-                    {/* KPI Section */}
-                    <KPIGrid />
-
-                    {/* Visibility Trend Chart */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border">
-                        <div className="h-6 w-48 bg-gray-200 rounded mb-6" />
-                        <div className="h-64 bg-gray-100 rounded-xl" />
-                    </div>
-
-                    {/* Sentiment + Prominence */}
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border">
-                            <div className="h-6 w-40 bg-gray-200 rounded mb-6" />
-                            <div className="h-56 bg-gray-100 rounded-xl" />
-                        </div>
-
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border">
-                            <div className="h-6 w-40 bg-gray-200 rounded mb-6" />
-                            <div className="h-56 bg-gray-100 rounded-xl" />
-                        </div>
-                    </div>
-
-                    {/* Competitor Intelligence */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border">
-                        <div className="h-6 w-56 bg-gray-200 rounded mb-6" />
-                        <div className="h-64 bg-gray-100 rounded-xl" />
-                    </div>
-
-                    {/* Alerts */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border">
-                        <div className="h-6 w-32 bg-gray-200 rounded mb-6" />
-                        <div className="space-y-4">
-                            {Array.from({ length: 3 }).map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="h-16 bg-gray-100 rounded-xl"
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Answer Table */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border">
-                        <div className="h-6 w-40 bg-gray-200 rounded mb-6" />
-                        <div className="space-y-3">
-                            {Array.from({ length: 6 }).map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="h-12 bg-gray-100 rounded"
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                </main>
-            </div>
+            {selectedBrandId ? (
+                <SentimentDashboard brandId={selectedBrandId} />
+            ) : (
+                <div className="rounded-md border bg-white p-4 text-sm text-gray-500">
+                    Select a brand to view sentiment overview.
+                </div>
+            )}
         </div>
-    )
+    );
 }

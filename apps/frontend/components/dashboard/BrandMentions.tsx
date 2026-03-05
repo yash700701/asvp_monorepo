@@ -75,14 +75,14 @@ export default function BrandMentionsDashboard({ brandId }: { brandId: string })
     }));
 
     return (
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-10 gap-3">
 
-            <Card className="rounded-2xl shadow-sm">
+            <Card className="rounded-2xl shadow-sm col-span-2 border-zinc-300">
                 <CardHeader>
-                    <CardTitle>Brand Mentions</CardTitle>
+                    <CardTitle className="text-sm">Brand Mentions</CardTitle>
                 </CardHeader>
 
-                <CardContent className="grid grid-cols-3 gap-6 text-center">
+                <CardContent className="grid grid-cols-1 gap-6 text-center">
                     <div>
                         <p className="text-sm text-muted-foreground">Mentions</p>
                         <p className="text-2xl font-bold">{mentions}</p>
@@ -100,9 +100,9 @@ export default function BrandMentionsDashboard({ brandId }: { brandId: string })
                 </CardContent>
             </Card>
 
-            <Card className="rounded-2xl shadow-sm">
+            <Card className="rounded-2xl shadow-sm col-span-8 border-zinc-300">
                 <CardHeader>
-                    <CardTitle>Brand Mention Trend</CardTitle>
+                    <CardTitle className="text-sm">Brand Mention Trend</CardTitle>
                 </CardHeader>
 
                 <CardContent>

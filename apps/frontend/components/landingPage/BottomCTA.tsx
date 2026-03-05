@@ -41,10 +41,10 @@ export default function BottomCTA() {
                     <div className="relative">
                         <div className="relative h-64 w-full md:h-80">
                             <Image
-                                src="/asvp-dashboard.png"
+                                src="/dashboard.png"
                                 alt="ASVP Dashboard Preview"
                                 fill
-                                className="rounded-2xl object-cover"
+                                className="rounded-2xl object-contain"
                             />
                         </div>
                           <p className="text-sm italic text-center mt-2 opacity-30 text-gray-100 mb-4">

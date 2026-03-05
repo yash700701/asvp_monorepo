@@ -20,9 +20,13 @@ const items = [
 export default function Sidebar({
     collapsed,
     setCollapsed,
+    selectedBrandName,
+    selectedBrandLogoUrl,
 }: {
     collapsed: boolean;
     setCollapsed: (v: boolean) => void;
+    selectedBrandName?: string | null;
+    selectedBrandLogoUrl?: string | null;
 }) {
     const pathname = usePathname();
 
@@ -53,6 +57,19 @@ export default function Sidebar({
                     <span className="font-semibold text-lg text-[#171717]">
                         Verity AI
                     </span>
+                    {selectedBrandLogoUrl && (
+                        <>
+                            <span className="text-gray-400 px-1">|</span>
+                            <Image
+                                src={selectedBrandLogoUrl}
+                                alt={selectedBrandName || "Selected brand"}
+                                width={30}
+                                height={30}
+                                className="rounded-sm"
+                                unoptimized
+                            />
+                        </>
+                    )}
                 </Link>
 
                 {/* Scrollable Nav */}
@@ -93,7 +110,7 @@ export default function Sidebar({
                     {!collapsed && (
                         <Link
                             href="/"
-                            className="flex items-center gap-2 hover:opacity-90 transition"
+                            className="flex items-center gap-1 hover:opacity-90 transition"
                         >
                             <Image
                                 src="/logo_black.png"
@@ -105,6 +122,19 @@ export default function Sidebar({
                             <span className="font-semibold text-lg text-[#171717]">
                                 Verity AI
                             </span>
+                            {selectedBrandLogoUrl && (
+                                <>
+                                    <span className="text-gray-400 px-1">|</span>
+                                    <Image
+                                        src={selectedBrandLogoUrl}
+                                        alt={selectedBrandName || "Selected brand"}
+                                        width={30}
+                                        height={30}
+                                        className="rounded-sm"
+                                        unoptimized
+                                    />
+                                </>
+                            )}
                         </Link>
                     )}
                     <button onClick={() => setCollapsed(!collapsed)}>
@@ -124,7 +154,7 @@ export default function Sidebar({
                                 className={clsx(
                                     "flex items-center gap-3 px-4 py-2 text-sm transition",
                                     active
-                                        ? "bg-gray-100 text-[#171717]"
+                                        ? "bg-gray-300 rounded-r-lg text-[#171717]"
                                         : "text-[#171717] hover:bg-gray-100"
                                 )}
                             >

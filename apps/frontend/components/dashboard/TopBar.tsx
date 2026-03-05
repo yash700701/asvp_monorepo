@@ -17,7 +17,7 @@ type TopBarProps = {
 export default function TopBar({
     brands,
     selectedBrandId,
-    onSelectBrand
+    onSelectBrand,
 }: TopBarProps) {
     const [showBrandDropdown, setShowBrandDropdown] = useState(false)
 
@@ -40,20 +40,20 @@ export default function TopBar({
     }
 
     return (
-        <div className="flex items-center justify-between border-b bg-white px-8 py-4">
+        <div className="flex items-center justify-between border-b bg-white px-2  py-2">
 
-            {/* LEFT - Brand Selector */}
+            {/* LEFT - Brand Selector  */}
             <div className="relative">
                 <button
                     onClick={() => setShowBrandDropdown(!showBrandDropdown)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition"
+                    className="flex items-center gap-2 text-sm font-medium transition"
                 >
                     {selectedBrand?.name || "Select brand"}
                     <ChevronDown size={16} />
                 </button>
 
                 {showBrandDropdown && (
-                    <div className="absolute mt-2 w-48 bg-white border rounded-xl shadow-lg z-50">
+                    <div className="absolute mt-2 w-48 bg-white border shadow-lg z-50">
                         {brands.map((brand) => (
                             <button
                                 key={brand.id}
@@ -61,7 +61,7 @@ export default function TopBar({
                                     onSelectBrand(brand.id)
                                     setShowBrandDropdown(false)
                                 }}
-                                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 rounded-xl"
+                                className="w-full text-left px-2 py-1 text-sm hover:bg-gray-100"
                             >
                                 {brand.name}
                             </button>
@@ -77,14 +77,14 @@ export default function TopBar({
                 <div className="relative">
                     <button
                         onClick={() => setShowDateDropdown(!showDateDropdown)}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition"
+                        className="flex items-center gap-2 text-sm font-medium transition"
                     >
                         {dateRange}
                         <ChevronDown size={16} />
                     </button>
 
                     {showDateDropdown && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white border rounded-xl shadow-lg z-50">
+                        <div className="absolute right-0 mt-2 w-48 bg-white border shadow-lg z-50">
                             {dateOptions.map((option) => (
                                 <button
                                     key={option}
@@ -92,7 +92,7 @@ export default function TopBar({
                                         setDateRange(option)
                                         setShowDateDropdown(false)
                                     }}
-                                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 rounded-xl"
+                                    className="w-full text-left px-2 py-1 text-sm hover:bg-gray-100"
                                 >
                                     {option}
                                 </button>
@@ -104,7 +104,7 @@ export default function TopBar({
                 {/* Export Button */}
                 <button
                     onClick={handleExport}
-                    className="flex items-center gap-2 px-5 py-2 bg-black text-white rounded-xl text-sm font-medium hover:opacity-90 transition"
+                    className="flex items-center gap-2 px-3 py-2 bg-black text-white rounded-lg text-sm font-medium hover:opacity-90 transition"
                 >
                     <Download size={16} />
                     Export

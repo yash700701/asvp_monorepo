@@ -8,15 +8,23 @@ import KPIGrid from "@/components/dashboard/KPIGrid";
 import BrandMentionsDashboard from "@/components/dashboard/BrandMentions";
 import SentimentDashboard from "@/components/dashboard/Sentiment";
 import ProminenceDashboard from "@/components/dashboard/prominence";
-
-type Brand = {
-    id: string;
-    brand_name: string;
-};
+import {
+    DashboardBrand,
+    useBrandSelection,
+} from "@/components/dashboard/BrandSelectionContext";
 
 export default function DashboardPage() {
-    const [brands, setBrands] = useState<Brand[]>([]);
-    const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
+    const {
+        brands,
+        setBrands,
+        selectedBrandId,
+        setSelectedBrandId,
+    } = useBrandSelection();
+
+    const [averageVisibility, setAverageVisibility] = useState<number | null>(null);
+    const [visibilityChange, setVisibilityChange] = useState<string | null>(null);
+    const [averageSentiment, setAverageSentiment] = useState<number | null>(null);
+    const [averageProminence, setAverageProminence] = useState<number | null>(null);
 
     useEffect(() => {
         async function loadBrands() {
@@ -25,18 +33,26 @@ export default function DashboardPage() {
                     `${process.env.NEXT_PUBLIC_API_BASE}/brands`,
                     { withCredentials: true }
                 );
-                const data = Array.isArray(res.data) ? res.data : [];
+                const data = (Array.isArray(res.data) ? res.data : []) as DashboardBrand[];
+
                 setBrands(data);
+
                 if (data.length > 0) {
-                    setSelectedBrandId(data[0].id);
+                    const stillValid = data.some((b) => b.id === selectedBrandId);
+                    if (!stillValid) {
+                        setSelectedBrandId(data[0].id);
+                    }
+                } else {
+                    setSelectedBrandId(null);
                 }
             } catch {
                 setBrands([]);
+                setSelectedBrandId(null);
             }
         }
 
         loadBrands();
-    }, []);
+    }, [setBrands, selectedBrandId, setSelectedBrandId]);
 
     const topBarBrands = useMemo(
         () => brands.map((b) => ({ id: b.id, name: b.brand_name })),
@@ -44,15 +60,26 @@ export default function DashboardPage() {
     );
 
     return (
-        <div className="space-y-6">
+        <div className="pt-28 sm:pt-0 space-y-3">
             <TopBar
                 brands={topBarBrands}
                 selectedBrandId={selectedBrandId}
                 onSelectBrand={setSelectedBrandId}
             />
-            <KPIGrid />
+
+            <KPIGrid
+                averageVisibility={averageVisibility}
+                visibilityChange={visibilityChange}
+                averageSentiment={averageSentiment}
+                averageProminence={averageProminence}
+            />
+
             {selectedBrandId ? (
-                <VisibilityOverview brandId={selectedBrandId} />
+                <VisibilityOverview
+                    brandId={selectedBrandId}
+                    onAverageVisibilityChange={setAverageVisibility}
+                    onVisibilityChange={setVisibilityChange}
+                />
             ) : (
                 <div className="rounded-md border bg-white p-4 text-sm text-gray-500">
                     Select a brand to view visibility overview.

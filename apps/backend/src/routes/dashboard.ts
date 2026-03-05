@@ -98,9 +98,9 @@ router.get("/sentiment-overview", async (req, res) => {
         LIMIT 100;
         `;
 
-    
+
         const Aggregate = await db.query(query1, [customerId, brandId]);
-        return res.json({ success: true, data: Aggregate.rows});
+        return res.json({ success: true, data: Aggregate.rows });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal server error" });
@@ -108,7 +108,7 @@ router.get("/sentiment-overview", async (req, res) => {
 });
 
 router.get("/prominenceTrend", async (req, res) => {
-    try {        
+    try {
         const { brandId } = req.query;
         const customerId = req.user?.customer_id;
         if (!brandId || typeof brandId !== "string") {
@@ -129,7 +129,36 @@ router.get("/prominenceTrend", async (req, res) => {
         `;
 
         const result = await db.query(query, [customerId, brandId]);
-        return res.json({ success: true, data: result.rows});
+        return res.json({ success: true, data: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+router.get("/entities", async (req, res) => {
+    try {
+        const { brandId } = req.query;
+        const customerId = req.user?.customer_id;
+        if (!brandId || typeof brandId !== "string") {
+            return res.status(400).json({ error: "brandId required" });
+        }
+        const query = `
+        SELECT
+        entity->>'canonical_name' AS name,
+        entity->>'type' AS type,
+        COUNT(*) as mentions
+        FROM answers,
+        jsonb_array_elements(entities) entity
+        WHERE customer_id = $1
+        AND brand_id = $2
+        AND entity->>'type' = 'Company'
+        GROUP BY name, type
+        ORDER BY mentions DESC
+        LIMIT 10;
+        `;
+        const result = await db.query(query, [customerId, brandId]);
+        return res.json({ success: true, data: result.rows });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal server error" });

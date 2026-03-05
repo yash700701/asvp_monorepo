@@ -26,7 +26,7 @@ type MentionsResponse = {
     };
 };
 
-export default function BrandMentionsDashboard({ brandId }: { brandId: string }) {
+export default function BrandMentionsDashboard({ brandId, onMentionsChange, onTotalResponsesChange, onMentionRateChange }: { brandId: string; onMentionsChange: (mentions: number) => void; onTotalResponsesChange: (total: number) => void; onMentionRateChange: (rate: number) => void }) {
 
     const [response, setResponse] = useState<MentionsResponse | null>(null);
     const [loading, setLoading] = useState(true);
@@ -57,7 +57,29 @@ export default function BrandMentionsDashboard({ brandId }: { brandId: string })
     }, [brandId]);
 
     if (loading) {
-        return <div className="text-sm text-muted-foreground">Loading brand mentions...</div>;
+        return (
+            <Card className="rounded-2xl shadow-sm col-span-8 border-zinc-300 animate-pulse">
+                <CardHeader>
+                    <div className="h-4 w-40 bg-zinc-200 rounded"></div>
+                </CardHeader>
+
+                <CardContent>
+                    <div className="h-72 w-full flex items-end gap-2">
+                        {[...Array(12)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="flex-1 bg-zinc-200 rounded"
+                                style={{ height: `${30 + Math.random() * 40}%` }}
+                            />
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (!response?.data.length) {
+        return <div className="text-sm text-muted-foreground border border-yellow-500 px-2 py-1 bg-yellow-100">No mention data available.</div>;
     }
 
     if (!response || !response.success) {
@@ -65,9 +87,12 @@ export default function BrandMentionsDashboard({ brandId }: { brandId: string })
     }
 
     const mentions = Number(response.count.mentions);
+    onMentionsChange(mentions);
     const total = Number(response.count.total);
+    onTotalResponsesChange(total);
 
     const mentionRate = total ? (mentions / total) * 100 : 0;
+    onMentionRateChange(mentionRate);
 
     const chartData = response.data.map((d) => ({
         day: new Date(d.day).toLocaleDateString(),
@@ -75,31 +100,7 @@ export default function BrandMentionsDashboard({ brandId }: { brandId: string })
     }));
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-10 gap-3">
-
-            <Card className="rounded-2xl shadow-sm col-span-2 border-zinc-300">
-                <CardHeader>
-                    <CardTitle className="text-sm">Brand Mentions</CardTitle>
-                </CardHeader>
-
-                <CardContent className="grid grid-cols-1 gap-6 text-center">
-                    <div>
-                        <p className="text-sm text-muted-foreground">Mentions</p>
-                        <p className="text-2xl font-bold">{mentions}</p>
-                    </div>
-
-                    <div>
-                        <p className="text-sm text-muted-foreground">Total Responses</p>
-                        <p className="text-2xl font-bold">{total}</p>
-                    </div>
-
-                    <div>
-                        <p className="text-sm text-muted-foreground">Mention Rate</p>
-                        <p className="text-2xl font-bold">{mentionRate.toFixed(1)}%</p>
-                    </div>
-                </CardContent>
-            </Card>
-
+        <div className="">
             <Card className="rounded-2xl shadow-sm col-span-8 border-zinc-300">
                 <CardHeader>
                     <CardTitle className="text-sm">Brand Mention Trend</CardTitle>

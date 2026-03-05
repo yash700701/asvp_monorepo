@@ -21,14 +21,25 @@ export default function DashboardPage() {
         setSelectedBrandId,
     } = useBrandSelection();
 
+    const [loadingBrands, setLoadingBrands] = useState(true);
+    const [brandLoadingError, setBrandLoadingError] = useState<string | null>(null);
+
     const [averageVisibility, setAverageVisibility] = useState<number | null>(null);
     const [visibilityChange, setVisibilityChange] = useState<string | null>(null);
+
+    const [mentions, setMentions] = useState<number>(0);
+    const [totalResponses, setTotalResponses] = useState<number>(0);
+    const [mentionRate, setMentionRate] = useState<number>(0);
+
     const [averageSentiment, setAverageSentiment] = useState<number | null>(null);
+
     const [averageProminence, setAverageProminence] = useState<number | null>(null);
+    const [averageProminenceposition, setAverageProminencePosition] = useState<string | null>(null);
 
     useEffect(() => {
         async function loadBrands() {
             try {
+                setLoadingBrands(true);
                 const res = await axios.get(
                     `${process.env.NEXT_PUBLIC_API_BASE}/brands`,
                     { withCredentials: true }
@@ -46,9 +57,12 @@ export default function DashboardPage() {
                     setSelectedBrandId(null);
                 }
             } catch {
+                setBrandLoadingError("Failed to load brands");
                 setBrands([]);
                 setSelectedBrandId(null);
-            }
+            } finally {
+                setLoadingBrands(false);
+            }    
         }
 
         loadBrands();
@@ -65,13 +79,19 @@ export default function DashboardPage() {
                 brands={topBarBrands}
                 selectedBrandId={selectedBrandId}
                 onSelectBrand={setSelectedBrandId}
+                loading={loadingBrands}
+                brandLoadingError={brandLoadingError}
             />
 
             <KPIGrid
                 averageVisibility={averageVisibility}
                 visibilityChange={visibilityChange}
                 averageSentiment={averageSentiment}
+                mentions={mentions}
+                totalResponses={totalResponses}
+                mentionRate={mentionRate}
                 averageProminence={averageProminence}
+                averageProminenceposition={averageProminenceposition}
             />
 
             {selectedBrandId ? (
@@ -81,31 +101,42 @@ export default function DashboardPage() {
                     onVisibilityChange={setVisibilityChange}
                 />
             ) : (
-                <div className="rounded-md border bg-white p-4 text-sm text-gray-500">
+                <div className="rounded-md border px-2 py-1 text-sm bg-blue-50 border-blue-500">
                     Select a brand to view visibility overview.
                 </div>
             )}
 
-            {selectedBrandId ? (
-                <BrandMentionsDashboard brandId={selectedBrandId} />
-            ) : (
-                <div className="rounded-md border bg-white p-4 text-sm text-gray-500">
-                    Select a brand to view brand mentions.
-                </div>
-            )}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {selectedBrandId ? (
+                    <BrandMentionsDashboard
+                        brandId={selectedBrandId}
+                        onMentionsChange={setMentions}
+                        onTotalResponsesChange={setTotalResponses}
+                        onMentionRateChange={setMentionRate}
+                    />
+                ) : (
+                    <div className="rounded-md border px-2 py-1 text-sm bg-blue-50 border-blue-500">
+                        Select a brand to view brand mentions.
+                    </div>
+                )}
+
+                {selectedBrandId ? (
+                    <SentimentDashboard brandId={selectedBrandId} />
+                ) : (
+                    <div className="rounded-md border px-2 py-1 text-sm bg-blue-50 border-blue-500">
+                        Select a brand to view sentiment overview.
+                    </div>
+                )}
+            </div>
 
             {selectedBrandId ? (
-                <SentimentDashboard brandId={selectedBrandId} />
+                <ProminenceDashboard 
+                    brandId={selectedBrandId}
+                    onAverageProminence={setAverageProminence}
+                    onAveragePosition={setAverageProminencePosition} 
+                />
             ) : (
-                <div className="rounded-md border bg-white p-4 text-sm text-gray-500">
-                    Select a brand to view sentiment overview.
-                </div>
-            )}
-
-            {selectedBrandId ? (
-                <ProminenceDashboard brandId={selectedBrandId} />
-            ) : (
-                <div className="rounded-md border bg-white p-4 text-sm text-gray-500">
+                <div className="rounded-md border px-2 py-1 text-sm bg-blue-50 border-blue-500">
                     Select a brand to view prominence overview.
                 </div>
             )}

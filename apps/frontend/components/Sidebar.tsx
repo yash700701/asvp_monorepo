@@ -84,7 +84,7 @@ export default function Sidebar({
                                 className={clsx(
                                     "flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-2 text-xs transition",
                                     active
-                                        ? "bg-gray-100 text-[#171717]"
+                                        ? "bg-gray-300 text-[#171717]"
                                         : "text-[#171717] hover:bg-gray-100"
                                 )}
                             >

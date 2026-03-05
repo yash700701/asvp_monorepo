@@ -5,18 +5,27 @@ import { ArrowUpRight, ArrowDownRight } from "lucide-react"
 
 type KPI = {
     title: string
-    value: number | string
+    value?: number | string
     trend?: string
+    mentions?: number
+    total?: number
+    position?: string | number
 }
 
-export default function KPIGrid({ averageVisibility, visibilityChange, averageSentiment, averageProminence }: { averageVisibility: number | null; visibilityChange: string | null; averageSentiment: number | null; averageProminence: number | null }) {
+export default function KPIGrid({ averageVisibility, visibilityChange, averageSentiment, averageProminence, averageProminenceposition, mentions, totalResponses, mentionRate }: { averageVisibility: number | null; visibilityChange: string | null; averageSentiment: number | null; averageProminence: number | null; averageProminenceposition: string | null; mentions: number; totalResponses: number; mentionRate: number }) {
     const kpis: KPI[] = [
         { title: "Visibility Score", value: averageVisibility ?? 0, trend: visibilityChange ?? "0%" },
-        { title: "Brand Mention Rate", value: 64, trend: "+3.1%" },
-        { title: "Avg Prominence", value: averageProminence ?? 0.71, trend: "-1.4%" },
+        {
+            title: "Brand Mention Rate",
+            mentions: mentions,
+            total: totalResponses,
+            value: mentionRate,
+            trend: "+3.1%"
+        },
+        { title: "Avg Prominence", value: averageProminence ?? 0, position: averageProminenceposition ?? "0", trend: "-1.4%" },
         { title: "Sentiment Score", value: averageSentiment ?? "Positive" },
         { title: "AI Confidence", value: 0.82, trend: "+0.8%" },
-        { title: "Total Answers", value: 1248, trend: "+12%" },
+        { title: "Total Answers", value: totalResponses, trend: "+12%" },
     ]
 
     return (
@@ -28,7 +37,7 @@ export default function KPIGrid({ averageVisibility, visibilityChange, averageSe
     )
 }
 
-function KPICard({ title, value, trend }: KPI) {
+function KPICard({ title, value, trend, mentions, total, position }: KPI) {
     const isNumber = typeof value === "number"
 
     const [displayValue, setDisplayValue] = useState(0)
@@ -87,12 +96,43 @@ function KPICard({ title, value, trend }: KPI) {
     return (
         <div className="bg-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between">
 
-            
+
             <p className="text-xs font-medium text-zinc-800">{title}</p>
-            
+
             <div className="mt-3 items-end justify-between">
                 <h2 className="text-3xl font-semibold text-gray-900">
-                    {isNumber ? displayValue : value}
+                    {title === "Brand Mention Rate" ? (
+                        <div className="flex items-end justify-between w-full">
+                            <div className="flex items-end">
+                                <span className="text-3xl font-semibold text-gray-900">
+                                    {mentions}
+                                </span>
+                                <span className="text-sm text-gray-500 ml-1 pb-1">
+                                    /{total}
+                                </span>
+                            </div>
+
+                            <span className="text-lg font-semibold text-gray-800">
+                                {Number(value).toFixed(0)}%
+                            </span>
+                        </div>
+                    ) : title === "Avg Prominence" ? (
+                        <div className="flex items-end justify-between w-full">
+                            <span className="text-3xl font-semibold text-gray-900">
+                                {isNumber ? displayValue : value}
+                            </span>
+
+                            {position && (
+                                <span className="text-xs text-gray-500 pb-1 pl-3">
+                                    {position} th position
+                                </span>
+                            )}
+                        </div>
+                    ) : (
+                        <span className="text-3xl font-semibold text-gray-900">
+                            {isNumber ? displayValue : value}
+                        </span>
+                    )}
                 </h2>
 
                 {trend && (
@@ -131,6 +171,7 @@ function KPICard({ title, value, trend }: KPI) {
                     {value}
                 </div>
             )}
+
         </div>
     )
 }

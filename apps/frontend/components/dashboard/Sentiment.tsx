@@ -57,11 +57,29 @@ export default function SentimentDashboard({ brandId }: { brandId: string }) {
     }, [brandId]);
 
     if (loading) {
-        return <div className="text-sm text-muted-foreground">Loading sentiment...</div>;
+        return (
+            <Card className="rounded-2xl shadow-sm border-zinc-300 animate-pulse">
+                <CardHeader>
+                    <div className="h-4 w-48 bg-zinc-200 rounded"></div>
+                </CardHeader>
+
+                <CardContent>
+                    <div className="h-72 w-full flex items-end gap-2">
+                        {[...Array(16)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="flex-1 bg-zinc-200 rounded"
+                                style={{ height: `${25 + Math.random() * 50}%` }}
+                            />
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+        );
     }
 
     if (!data.length) {
-        return <div className="text-sm text-muted-foreground">No sentiment data.</div>;
+        return <div className="text-sm text-muted-foreground border border-yellow-500 px-2 py-1 bg-yellow-100">No sentiment data.</div>;
     }
 
     const positiveCount = data.filter(d => d.sentiment_label === "positive").length;
@@ -81,7 +99,7 @@ export default function SentimentDashboard({ brandId }: { brandId: string }) {
     return (
         <div className="space-y-6">
 
-            <Card>
+            {/* <Card>
                 <CardHeader>
                     <CardTitle>AI Sentiment Overview</CardTitle>
                 </CardHeader>
@@ -102,15 +120,15 @@ export default function SentimentDashboard({ brandId }: { brandId: string }) {
                         <p className="text-2xl font-bold text-red-600">{negativeCount}</p>
                     </div>
                 </CardContent>
-            </Card>
+            </Card> */}
 
-            <Card>
+            <Card className="rounded-2xl shadow-sm border-zinc-300">
                 <CardHeader>
-                    <CardTitle>Sentiment Trend (Last 100 Queries)</CardTitle>
+                    <CardTitle className="text-sm">Sentiment Trend (Last 100 Queries)</CardTitle>
                 </CardHeader>
 
                 <CardContent>
-                    <div className="h-80 w-full">
+                    <div className="h-72 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={chartData}>
                                 <CartesianGrid strokeDasharray="3 3" />

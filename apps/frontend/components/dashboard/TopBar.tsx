@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Download, ChevronDown } from "lucide-react"
+import Loading from "@/components/Loading";
 
 type Brand = {
     id: string
@@ -12,12 +13,16 @@ type TopBarProps = {
     brands: Brand[]
     selectedBrandId: string | null
     onSelectBrand: (brandId: string) => void
+    loading: boolean
+    brandLoadingError: string | null
 }
 
 export default function TopBar({
     brands,
     selectedBrandId,
     onSelectBrand,
+    loading,
+    brandLoadingError
 }: TopBarProps) {
     const [showBrandDropdown, setShowBrandDropdown] = useState(false)
 
@@ -43,7 +48,7 @@ export default function TopBar({
         <div className="flex items-center justify-between border-b bg-white px-2  py-2">
 
             {/* LEFT - Brand Selector  */}
-            <div className="relative">
+            <div className="relative flex items-center gap-4">
                 <button
                     onClick={() => setShowBrandDropdown(!showBrandDropdown)}
                     className="flex items-center gap-2 text-sm font-medium transition"
@@ -51,6 +56,9 @@ export default function TopBar({
                     {selectedBrand?.name || "Select brand"}
                     <ChevronDown size={16} />
                 </button>
+
+                {loading && <Loading />}
+                {brandLoadingError && <span className="text-xs text-red-500">{brandLoadingError}</span>}
 
                 {showBrandDropdown && (
                     <div className="absolute mt-2 w-48 bg-white border shadow-lg z-50">

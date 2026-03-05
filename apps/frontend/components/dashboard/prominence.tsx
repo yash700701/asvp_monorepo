@@ -31,7 +31,7 @@ type ChartPoint = {
     best_sentence: string;
 };
 
-export default function ProminenceDashboard({ brandId }: { brandId: string }) {
+export default function ProminenceDashboard({ brandId, onAverageProminence, onAveragePosition }: { brandId: string; onAverageProminence: (avg: number | null) => void; onAveragePosition: (avg: string | null) => void }) {
 
     const [data, setData] = useState<ProminenceRow[]>([]);
     const [loading, setLoading] = useState(true);
@@ -68,10 +68,12 @@ export default function ProminenceDashboard({ brandId }: { brandId: string }) {
     const avgScore =
         mentions.reduce((acc, d) => acc + d.prominence_score, 0) /
         (mentions.length || 1);
+    onAverageProminence(avgScore.toFixed(2) ? parseFloat(avgScore.toFixed(2)) : null);
 
     const avgPosition =
         mentions.reduce((acc, d) => acc + d.first_sentence_index, 0) /
         (mentions.length || 1);
+    onAveragePosition(avgPosition >= 0 ? `+${Math.round(avgPosition)}` : `${Math.round(avgPosition)}`);
 
     const chartData = useMemo(
         () =>
@@ -93,53 +95,48 @@ export default function ProminenceDashboard({ brandId }: { brandId: string }) {
     }, [chartData, activePoint]);
 
     if (loading) {
-        return <div className="text-sm text-muted-foreground">Loading prominence...</div>;
+        return (
+            <div className="space-y-6 animate-pulse">
+
+                {/* Chart Card Skeleton */}
+                <Card className="rounded-2xl shadow-sm border-zinc-300">
+                    <CardHeader>
+                        <div className="h-4 w-52 bg-zinc-200 rounded"></div>
+                    </CardHeader>
+
+                    <CardContent>
+                        <div className="h-80 w-full bg-zinc-200 rounded-lg"></div>
+                    </CardContent>
+                </Card>
+
+                {/* Best Sentence Card Skeleton */}
+                <Card>
+                    <CardHeader>
+                        <div className="h-4 w-40 bg-zinc-200 rounded"></div>
+                    </CardHeader>
+
+                    <CardContent className="space-y-2">
+                        <div className="h-3 w-full bg-zinc-200 rounded"></div>
+                        <div className="h-3 w-11/12 bg-zinc-200 rounded"></div>
+                        <div className="h-3 w-10/12 bg-zinc-200 rounded"></div>
+                    </CardContent>
+                </Card>
+
+            </div>
+        );
     }
 
     if (!data.length) {
-        return <div className="text-sm text-muted-foreground">No prominence data.</div>;
+        return <div className="text-sm text-muted-foreground border border-yellow-500 px-2 py-1 bg-yellow-100">No prominence data available yet.</div>;
     }
 
     return (
         <div className="space-y-6">
 
-            {/* Overview */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Brand Prominence</CardTitle>
-                </CardHeader>
-
-                <CardContent className="grid grid-cols-3 gap-6 text-center">
-
-                    <div>
-                        <p className="text-sm text-muted-foreground">Average Score</p>
-                        <p className="text-2xl font-bold">
-                            {avgScore.toFixed(2)}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p className="text-sm text-muted-foreground">Avg Mention Position</p>
-                        <p className="text-2xl font-bold">
-                            {Math.round(avgPosition)}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p className="text-sm text-muted-foreground">Mentions</p>
-                        <p className="text-2xl font-bold">
-                            {mentions.length} / {data.length}
-                        </p>
-                    </div>
-
-                </CardContent>
-            </Card>
-
-
             {/* Trend Chart */}
-            <Card>
+            <Card className="rounded-2xl shadow-sm border-zinc-300">
                 <CardHeader>
-                    <CardTitle>Prominence Trend (Last 100 Runs)</CardTitle>
+                    <CardTitle className="text-sm">Prominence Trend (Last 100 Runs)</CardTitle>
                 </CardHeader>
 
                 <CardContent>
@@ -148,9 +145,13 @@ export default function ProminenceDashboard({ brandId }: { brandId: string }) {
                             <LineChart
                                 data={chartData}
                                 onMouseMove={(state: any) => {
-                                    const payload = state?.activePayload?.[0]?.payload;
-                                    if (payload) {
-                                        setActivePoint(payload);
+                                    if (state && state.activePayload && state.activePayload.length) {
+                                        setActivePoint(state.activePayload[0].payload);
+                                    }
+                                }}
+                                onMouseLeave={() => {
+                                    if (chartData.length) {
+                                        setActivePoint(chartData[chartData.length - 1]);
                                     }
                                 }}
                             >
@@ -180,6 +181,7 @@ export default function ProminenceDashboard({ brandId }: { brandId: string }) {
                                     stroke="#3b82f6"
                                     strokeWidth={3}
                                     dot={{ r: 3 }}
+                                    activeDot={{ r: 6 }}
                                 />
 
                             </LineChart>
@@ -191,13 +193,13 @@ export default function ProminenceDashboard({ brandId }: { brandId: string }) {
 
             {/* Dynamic Best Sentence */}
             {activePoint?.best_sentence && (
-                <Card>
+                <Card className="rounded-2xl shadow-sm border-zinc-300">
                     <CardHeader>
-                        <CardTitle>Strongest Brand Mention</CardTitle>
+                        <CardTitle className="text-sm">Strongest Brand Mention</CardTitle>
                     </CardHeader>
 
                     <CardContent>
-                        <p className="text-sm leading-relaxed text-muted-foreground">
+                        <p className="text-sm leading-relaxed text-muted-foreground ">
                             {activePoint.best_sentence}
                         </p>
                     </CardContent>

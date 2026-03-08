@@ -20,7 +20,7 @@ passport.use(
             const email = profile.emails?.[0].value;
             if (!email) return done(new Error("No email"));
 
-            // find or create customer (MVP: one customer per domain)
+            // find or create customer
             const domain = email.split("@")[1];
 
             const customerResult = await db.query(

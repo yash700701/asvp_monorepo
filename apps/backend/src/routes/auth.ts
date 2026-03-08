@@ -50,15 +50,13 @@ router.get(
             );
         }
 
-        res.redirect(`http://localhost:3000/api/auth/callback?token=${token}`);
+        res.redirect(`${process.env.FRONTEND_URL}/api/auth/callback?token=${token}`);
     }
 );
 
 // Current user
 router.get("/me", (req, res) => {
     const token = req.cookies?.auth_token;
-    console.log("Auth token from cookie:", req.cookies);
-    console.log("Auth token from cookie:", token);
     if (!token) return res.status(401).json({ error: "unauthorized" });
 
     try {

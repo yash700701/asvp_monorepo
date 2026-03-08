@@ -1,7 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Loading from "../Loading";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Pencil, Info, Trash, Play, Power } from "lucide-react";
+import DescriptionModal from "./DescriptionModal";
+import { BrandSelectionProvider } from "../dashboard/BrandSelectionContext";
 
 type Brand = {
     id: string;
@@ -10,6 +13,12 @@ type Brand = {
     description: string;
     logo_url: string;
     competitors: string[];
+    total_queries: number;
+    active_queries: number;
+    last_run_time: string | null;
+    avg_visibility: number | null;
+    avg_sentiment: number | null;
+    mention_rate: number | null;
 };
 
 type Props = {
@@ -29,18 +38,20 @@ export default function BrandList({
     onDelete,
     onEdit,
 }: Props) {
+
+    const [selectedBrand, setSelectedBrand] = useState<any>(null);
     return (
         <section className="space-y-4 w-full">
             <div className="flex items-center space-x-2">
-                <h2 className="text-lg font-semibold">Your Brands</h2>
+                <h2 className="text-lg font-semibold italic">Your Brands.</h2>
                 {brandsLoading && <Loading />}
             </div>
 
-            <div className="border rounded divide-y">
+            <div className="">
 
                 {/* Empty State */}
-                {brands.length === 0 && !fetchError && (
-                    <p className="p-4 text-sm text-gray-500">
+                {brands.length === 0 && !fetchError && !brandsLoading && (
+                    <p className="text-sm text-gray-500">
                         No brands found. Add your first brand to start tracking AI visibility.
                     </p>
                 )}
@@ -56,66 +67,166 @@ export default function BrandList({
                 {brands.map((brand) => (
                     <div
                         key={brand.id}
-                        className="p-4 text-sm flex items-start justify-between gap-4"
+                        className="text-sm flex py-1 items-start justify-between"
                     >
-                        {/* Left Section */}
-                        <div>
-                            <div className="flex items-center gap-3">
-                                {brand.logo_url ? (
-                                    <img
-                                        src={brand.logo_url}
-                                        alt={brand.brand_name}
-                                        className="w-8 h-8 rounded object-cover border"
-                                    />
-                                ) : (
-                                    <div className="w-8 h-8 rounded bg-gray-200 flex items-center justify-center text-xs font-medium">
-                                        {brand.brand_name[0]}
-                                    </div>
-                                    
-                                )}
+                        <div className="flex items-center gap-2 justify-between bg-gray-100 rounded-lg p-3 w-full">
+                            {/* Left Section */}
+                            <div className="">
+                                <div className="flex items-center gap-3">
+                                    {brand.logo_url ? (
+                                        <img
+                                            src={brand.logo_url}
+                                            alt={brand.brand_name}
+                                            className="w-8 h-8 rounded object-cover border"
+                                        />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded bg-gray-200 flex items-center justify-center text-xs font-medium">
+                                            {(brand.brand_name || "?")[0]}
+                                        </div>
 
-                                <span className="font-medium flex items-center gap-3">
-                                    {brand.brand_name}
-                                    <button className="cursor-pointer">
-                                        <ArrowRight size={16} />
-                                    </button>
-                                </span>
+                                    )}
+
+                                    <span className="font-medium flex items-center gap-2">
+                                        {brand.brand_name || "Unnamed Brand"}
+
+                                        {brand.description && (
+                                            <>
+                                                <button
+                                                    onClick={() => setSelectedBrand(brand)}
+                                                    className=" rounded hover:bg-gray-100 text-blue-600"
+                                                >
+                                                    <Info size={14} />
+                                                </button>
+                                            </>
+                                        )}
+
+                                        <button className="cursor-pointer">
+                                            <ArrowRight size={16} />
+                                        </button>
+                                    </span>
+
+                                    {selectedBrand && (
+                                        <DescriptionModal
+                                            description={selectedBrand.description}
+                                            onClose={() => setSelectedBrand(null)}
+                                        />
+                                    )}
+                                </div>
+
+                                <div className="text-xs text-gray-500 mt-1 space-x-2">
+                                    <span>
+                                        {(brand.canonical_urls ?? []).length} URL
+                                        {(brand.canonical_urls ?? []).length !== 1 && "s"}
+                                    </span>
+
+                                    {brand.competitors?.length > 0 && (
+                                        <>
+                                            <span>|</span>
+                                            <span>
+                                                {brand.competitors.length} competitor
+                                                {brand.competitors.length !== 1 && "s"}
+                                            </span>
+                                        </>
+                                    )}
+
+                                    {brand.total_queries > 0 && (
+                                        <>
+                                            <span>|</span>
+                                            <span>
+                                                {brand.total_queries} total query
+                                                {brand.total_queries !== 1 && "ies"}
+                                            </span>
+                                        </>
+                                    )}
+
+                                    {brand.active_queries > 0 && (
+                                        <>
+                                            <span>|</span>
+                                            <span>
+                                                {brand.active_queries} active query
+                                                {brand.active_queries !== 1 && "ies"}
+                                            </span>
+                                        </>
+                                    )}
+
+                                    {brand.avg_visibility !== null && (
+                                        <>
+                                            <span>|</span>
+                                            <span>
+                                                {brand.avg_visibility.toFixed(2)}% visibility
+                                            </span>
+                                        </>
+                                    )}
+
+                                    {brand.avg_sentiment !== null && (
+                                        <>
+                                            <span>|</span>
+                                            <span>
+                                                {brand.avg_sentiment.toFixed(2)} average sentiment
+                                            </span>
+                                        </>
+                                    )}
+
+                                    {brand.mention_rate !== null && (
+                                        <>
+                                            <span>|</span>
+                                            <span>
+                                                {brand.mention_rate.toFixed(2)}% mention rate
+                                            </span>
+                                        </>
+                                    )}
+
+                                    {brand.last_run_time && (
+                                        <>
+                                            <span>|</span>
+                                            <span>
+                                                Last run: {new Date(brand.last_run_time).toLocaleString("en-IN", {
+                                                    weekday: "short",
+                                                    day: "numeric",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                    hour: "2-digit",
+                                                    minute: "2-digit"
+                                                })}
+                                            </span>
+                                        </>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="text-xs text-gray-500 mt-1 space-x-2">
-                                <span>
-                                    {brand.canonical_urls.length} URL
-                                    {brand.canonical_urls.length !== 1 && "s"}
-                                </span>
+                            {/* Right Actions */}
+                            <div className="flex items-end justify-end gap-2 flex-wrap">
 
-                                {brand.competitors?.length > 0 && (
-                                    <>
-                                        <span>|</span>
-                                        <span>
-                                            {brand.competitors.length} competitor
-                                            {brand.competitors.length !== 1 && "s"}
-                                        </span>
-                                    </>
-                                )}
+                                <button
+                                    onClick={() => onEdit?.(brand.id)} 
+                                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 rounded-md transition">
+                                    <Play size={14} />
+                                    Run all queries once
+                                </button>
+
+                                <button
+                                    onClick={() => onEdit?.(brand.id)} 
+                                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 rounded-md transition">
+                                    <Power size={14} />
+                                    Activate all queries
+                                </button>
+                                
+                                <button
+                                    onClick={() => onEdit?.(brand.id)} 
+                                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 rounded-md transition">
+                                    <Pencil size={14} />
+                                    Edit
+                                </button>
+
+                                <button
+                                    onClick={() => onDelete?.(brand.id)}
+                                    disabled={deletingId === brand.id}
+                                    className="text-xs flex items-center gap-1 px-2 py-1 font-medium text-red-500 hover:text-red-700 cursor-pointer transition disabled:opacity-50"
+                                >
+                                    <Trash size={14} />
+                                    {deletingId === brand.id ? "Deleting..." : "Delete"}
+                                </button>
                             </div>
-                        </div>
-
-                        {/* Right Actions */}
-                        <div className="flex items-end justify-end gap-2 flex-wrap">
-                            <button
-                                onClick={() => onEdit?.(brand.id)}
-                                className="text-xs px-3 py-1 rounded border border-gray-400 hover:bg-gray-100 transition"
-                            >
-                                Edit
-                            </button>
-
-                            <button
-                                onClick={() => onDelete?.(brand.id)}
-                                disabled={deletingId === brand.id}
-                                className="text-xs px-3 py-1 rounded border border-red-500 text-red-600 hover:bg-red-50 transition disabled:opacity-50"
-                            >
-                                {deletingId === brand.id ? "Deleting..." : "Delete"}
-                            </button>
                         </div>
                     </div>
                 ))}

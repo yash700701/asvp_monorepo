@@ -39,7 +39,6 @@ ADD COLUMN IF NOT EXISTS visibility_score REAL,
 ADD COLUMN IF NOT EXISTS sentiment_label TEXT,
 ADD COLUMN IF NOT EXISTS sentiment_score REAL,
 ADD COLUMN IF NOT EXISTS prominence_score REAL,
-ADD COLUMN IF NOT EXISTS mentions_brand BOOLEAN DEFAULT false;
 
 CREATE INDEX IF NOT EXISTS idx_answers_visibility_score
 ON answers (visibility_score);
@@ -57,13 +56,16 @@ ALTER TABLE answers
 ADD COLUMN customer_id UUID;
 
 ALTER TABLE answers
-ADD COLUMN brand_id TEXT;
+ADD COLUMN brand_id UUID;
 
 CREATE INDEX idx_answers_customer_brand
 ON answers (customer_id, brand_id);
 
 CREATE INDEX idx_answers_customer_brand_time
 ON answers (customer_id, brand_id, created_at DESC);
+
+CREATE INDEX idx_answers_run_brand
+ON answers(run_id, brand_id);
 
 
 -- ALTER TABLE answers ENABLE ROW LEVEL SECURITY;

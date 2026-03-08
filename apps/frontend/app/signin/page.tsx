@@ -3,8 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { loginWithGoogle } from "../../lib/auth";
+import { useState } from "react";
+import Loading from "@/components/Loading";
 
 export default function SigninPage() {
+    const [loading, setLoading] = useState(false);
+
     return (
         <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-white">
 
@@ -41,11 +45,19 @@ export default function SigninPage() {
 
             {/* Google Sign In */}
             <button
-                onClick={loginWithGoogle}
+                onClick={() => {
+                setLoading(true);
+                loginWithGoogle();
+                }}
+                disabled={loading}
                 className="mt-5 w-full cursor-pointer text-[#171717] flex items-center justify-center gap-2 rounded-lg border  bg-white py-2.5 text-sm font-medium hover:bg-gray-50 transition"
             >
                 <Image src="/google.png" unoptimized alt="Google" width={16} height={16} />
-                Sign in with Google
+                Sign in with Google <span>
+                {loading && (
+                    <Loading />
+                )}
+                </span>
             </button>
 
             {/* Divider */}

@@ -14,8 +14,7 @@ export async function getCurrentUser() {
             "Cache-Control": "no-store",
         },
         });
-
-        console.log("getCurrentUser response status:", res.status);
+        
         return res.data;
     } catch (err: any) {
         if (err.response?.status === 401) {

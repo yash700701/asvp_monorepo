@@ -17,18 +17,18 @@ router.post("/", requireAuth, async (req, res) => {
 
     try {
         const result = await db.query(
-        `
+            `
         INSERT INTO brands (customer_id, brand_name, canonical_urls, description, logo_url, competitors)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
         `,
-        [req.user!.customer_id, brand_name, canonical_urls, description, logo_url, competitors]
+            [req.user!.customer_id, brand_name, canonical_urls, description, logo_url, competitors]
         );
 
         res.status(201).json(result.rows[0]);
     } catch (err: any) {
         if (err.code === "23505") {
-        return res.status(409).json({ error: "Brand already exists" });
+            return res.status(409).json({ error: "Brand already exists" });
         }
         console.error(err);
         res.status(500).json({ error: "Internal server error" });
@@ -41,9 +41,68 @@ router.post("/", requireAuth, async (req, res) => {
 router.get("/", requireAuth, async (req, res) => {
     const result = await db.query(
         `
-        SELECT * FROM brands
-        WHERE customer_id = $1
-        ORDER BY created_at DESC
+                WITH ranked_runs AS (
+            SELECT
+                r.*,
+                q.brand_id,
+                ROW_NUMBER() OVER (
+                    PARTITION BY q.brand_id
+                    ORDER BY r.started_at DESC
+                ) as rn
+            FROM runs r
+            JOIN queries q ON q.id = r.query_id
+        )
+
+        SELECT
+            b.id,
+            b.brand_name,
+            b.description,
+            b.canonical_urls,
+            b.logo_url,
+            b.competitors,
+
+            COUNT(DISTINCT q.id) AS total_queries,
+
+            COUNT(DISTINCT q.id) FILTER (
+                WHERE q.is_active = true AND q.is_deleted = false
+            ) AS active_queries,
+
+            MAX(rr.started_at) AS last_run_time,
+
+            AVG(a.visibility_score) AS avg_visibility,
+
+            AVG(a.sentiment_score) AS avg_sentiment,
+
+            (
+                SUM(CASE WHEN a.mentions_brand = true THEN 1 ELSE 0 END)::float
+                / NULLIF(COUNT(a.id),0)
+            ) * 100 AS mention_rate
+
+        FROM brands b
+
+        LEFT JOIN queries q
+            ON q.brand_id = b.id
+            AND q.is_deleted = false
+
+        LEFT JOIN ranked_runs rr
+            ON rr.query_id = q.id
+            AND rr.rn <= 14
+
+        LEFT JOIN answers a
+            ON a.run_id = rr.id
+            AND a.brand_id = b.id
+            AND a.customer_id = b.customer_id
+
+        WHERE b.customer_id = $1
+
+        GROUP BY
+            b.id,
+            b.brand_name,
+            b.description,
+            b.canonical_urls,
+            b.logo_url,
+            b.competitors
+        ORDER BY b.created_at DESC;
         `,
         [req.user!.customer_id]
     );

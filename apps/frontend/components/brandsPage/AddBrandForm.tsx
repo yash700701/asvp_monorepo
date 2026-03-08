@@ -75,7 +75,7 @@ export default function AddBrandForm({refreshBrands}: props) {
     }
 
     return (
-        <div className="max-w-lg bg-white rounded-xl p-5 shadow-sm space-y-2">
+        <div className="max-w-lg bg-white space-y-2">
             <div>
                 <h1 className="text-lg font-semibold">Add Brand</h1>
                 <p className="text-sm text-gray-500">

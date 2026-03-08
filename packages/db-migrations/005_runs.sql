@@ -32,6 +32,11 @@ ALTER COLUMN customer_id SET NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_runs_customer_started
 ON runs (customer_id, started_at);
 
+CREATE INDEX idx_runs_query_time
+ON runs(query_id, created_at DESC);
+
+CREATE INDEX idx_runs_query_time
+ON runs(query_id, started_at DESC);
 
 
 

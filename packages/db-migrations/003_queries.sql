@@ -17,6 +17,9 @@ ADD COLUMN IF NOT EXISTS brand_id UUID REFERENCES brands(id);
 CREATE INDEX IF NOT EXISTS idx_queries_brand
 ON queries(brand_id);
 
+CREATE INDEX idx_queries_brand_customer
+ON queries(brand_id, customer_id);
+
 ALTER TABLE queries
 ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS schedule_id TEXT;

@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-import AddBrandForm from "@/components/brandsPage/AddBrandForm";
 import BrandStats from "@/components/brandsPage/BrandStats";
 import BrandList from "@/components/brandsPage/BrandList";
+import { log } from "console";
 
 type brands = {
   id: string;
@@ -14,6 +14,12 @@ type brands = {
   description: string;
   logo_url: string;
   competitors: string[];
+  total_queries: number;
+  active_queries: number;
+  last_run_time: string | null;
+  avg_visibility: number | null;
+  avg_sentiment: number | null;
+  mention_rate: number | null;
 };
 
 export default function NewBrandPage() {
@@ -70,12 +76,9 @@ export default function NewBrandPage() {
   return (
     <main className="pt-28 sm:pt-0 space-y-8">
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="">
         <div className="lg:col-span-1">
-          <AddBrandForm refreshBrands={refreshBrands} />
-        </div>
-        <div className="lg:col-span-1">
-          <BrandStats brandsCount={brandsCount} queryCount={queryCount} activeQueryCount={activeQueryCount} visibility={visibility} />
+          <BrandStats brandsCount={brandsCount} queryCount={queryCount} activeQueryCount={activeQueryCount} refreshBrands={refreshBrands} />
         </div>
       </div>
 

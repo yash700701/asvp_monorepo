@@ -72,21 +72,51 @@ router.get("/", requireAuth, async (req, res) => {
         const result = await db.query(
             `
             SELECT 
-                q.id,
-                q.query_text,
-                q.frequency,
-                q.brand_id,
-                b.brand_name,
-                q.query_type,
-                q.created_at,
-                q.is_active,
-                q.is_paused
-            FROM queries q
-            JOIN brands b 
-                ON q.brand_id = b.id
-            WHERE q.customer_id = $1 AND q.is_deleted = FALSE
-            ${brandFilter}
-            ORDER BY q.created_at DESC
+            q.id,
+            q.query_text,
+            q.frequency,
+            q.brand_id,
+            b.brand_name,
+            b.logo_url AS brand_logo,
+            q.query_type,
+            q.created_at,
+            q.is_active,
+            q.is_paused,
+
+            COUNT(a.id) AS responses,
+
+            SUM(CASE WHEN a.mentions_brand THEN 1 ELSE 0 END) AS brand_mentions,
+
+            COALESCE(ROUND(AVG(a.visibility_score)::numeric,2),0) AS visibility,
+            COALESCE(ROUND(AVG(a.prominence_score)::numeric, 2),0) AS prominence,
+            COALESCE(ROUND(AVG(a.sentiment_score)::numeric, 2),0) AS sentiment,
+
+            COUNT(DISTINCT r.id) AS runs,
+
+            MAX(r.started_at) AS last_run
+
+        FROM queries q
+        JOIN brands b ON q.brand_id = b.id
+        LEFT JOIN runs r ON r.query_id = q.id
+        LEFT JOIN answers a ON a.run_id = r.id AND a.brand_id = q.brand_id
+
+        WHERE q.customer_id = $1
+        AND q.is_deleted = FALSE
+        ${brandFilter}
+
+        GROUP BY 
+            q.id,
+            q.query_text,
+            q.frequency,
+            q.brand_id,
+            b.brand_name,
+            b.logo_url,
+            q.query_type,
+            q.created_at,
+            q.is_active,
+            q.is_paused
+
+        ORDER BY q.created_at DESC;
             `,
             values
         );

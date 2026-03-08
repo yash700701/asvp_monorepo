@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import AddQueryForm from "@/components/queryPage/AddQueryForm";
 import QueryList from "@/components/queryPage/QueryList";
+import KPIGrid from "@/components/queryPage/QueryStats";
 
 type Query = {
     id: string;
     query_text: string;
     brand_name: string;
+    brand_logo: string;
     frequency: string;
     brand_id: string;
     query_type: "brand" | "category" | "competitor";
@@ -202,7 +204,8 @@ export default function NewQueryPage() {
 
     return (
         <main className="pt-28 sm:pt-0 space-y-8">
-            <AddQueryForm brands={brands} onCreated={refreshQueries} />
+            <KPIGrid brands={brands} onCreated={refreshQueries}/>
+            {/* <AddQueryForm brands={brands} onCreated={refreshQueries} /> */}
             <QueryList
                 brands={brands}
                 queries={queries}

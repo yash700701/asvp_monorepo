@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ArrowUpRight, ArrowDownRight, Plus } from "lucide-react"
-import AddBrandForm from "../brandsPage/AddBrandForm"
+import AddQueryForm from "../queryPage/AddQueryForm"
 
 type KPI = {
     title: string
@@ -10,37 +10,33 @@ type KPI = {
 }
 
 export default function KPIGrid({
-    brandsCount,
-    queryCount,
-    activeQueryCount,
-    refreshBrands,
+    brands,
+    onCreated,
 }: {
-    brandsCount: number
-    queryCount: number
-    activeQueryCount: number
-    refreshBrands: () => void
+    brands: any[]
+    onCreated: () => void
 }) {
 
-    const [showAddBrand, setShowAddBrand] = useState(false)
+    const [showAddQuery, setShowAddQuery] = useState(false)
 
     const kpis: KPI[] = [
-        { title: "Total Brands", value: brandsCount },
-        { title: "Total Queries", value: queryCount },
-        { title: "Active Queries", value: activeQueryCount },
+        { title: "Total Brands", value: brands.length },
+        { title: "Total Queries", value: 0 },
+        { title: "Active Queries", value: 0 },
     ]
 
     return (
         <>
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
 
-                {/* Add Brand Card */}
+                {/* Add Query Card */}
                 <div
-                    onClick={() => setShowAddBrand(true)}
+                    onClick={() => setShowAddQuery(true)}
                     className="bg-white border-2 border-dashed border-zinc-300 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-black hover:shadow-md transition"
                 >
                     <Plus className="w-6 h-6 text-zinc-500 mb-2" />
                     <p className="text-sm font-medium text-zinc-600">
-                        Add Brand
+                        Add Query
                     </p>
                 </div>
 
@@ -49,19 +45,19 @@ export default function KPIGrid({
                 ))}
             </div>
 
-            {/* Add Brand Modal */}
-            {showAddBrand && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            {/* Add Query Modal */}
+            {showAddQuery && (
+                <div className="fixed inset-0 bg-black/40 h-screen flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl p-6 w-125 relative">
 
                         <button
-                            onClick={() => setShowAddBrand(false)}
+                            onClick={() => setShowAddQuery(false)}
                             className="absolute right-3 top-3 text-zinc-500 hover:text-black"
                         >
                             ✕
                         </button>
 
-                        <AddBrandForm refreshBrands={refreshBrands} />
+                        <AddQueryForm brands={brands} onCreated={onCreated} />
 
                     </div>
                 </div>

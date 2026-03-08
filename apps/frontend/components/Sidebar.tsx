@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { BarChart, Search, Settings, Menu, Building2, LayoutDashboard, Bell, Lightbulb, Gauge } from "lucide-react";
+import { BarChart, Search, Settings, Menu, Building2, LayoutDashboard, Bell, Lightbulb, Gauge, User } from "lucide-react";
 import clsx from "clsx";
 
 const items = [
@@ -15,6 +15,7 @@ const items = [
     { name: "Recommendations", href: "/dashboard/recommendations", icon: Lightbulb },
     { name: "Usage", href: "/dashboard/usage", icon: Gauge },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    { name: "Account", href: "/dashboard/account", icon: User },
 ];
 
 export default function Sidebar({

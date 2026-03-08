@@ -10,14 +10,14 @@ export default function Footer() {
             {/* BIG BACKGROUND TEXT */}
             <div className="pointer-events-none flex items-end justify-center ">
                 <h1 className="
-          text-[22vw] 
-          font-extrabold 
-          tracking-tight 
-          text-zinc-300/40 
-          leading-none 
-          select-none
-          [mask-image:linear-gradient(to_bottom,black_60%,transparent)]
-        ">
+                    text-[22vw] 
+                    font-extrabold 
+                    tracking-tight 
+                    text-zinc-300/40 
+                    leading-none 
+                    select-none
+                    [mask-image:linear-gradient(to_bottom,black_60%,transparent)]
+                ">
                     VerityAI
                 </h1>
             </div>

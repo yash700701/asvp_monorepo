@@ -1,11 +1,6 @@
 "use client";
 
-import axios from "axios";
-
-// Axios instance for same-origin (Next.js BFF)
-const api = axios.create({
-  withCredentials: true, // send cookies
-});
+import api from "../lib/axios";
 
 export async function getCurrentUser() {
     try {

@@ -44,6 +44,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-
-// add no-select to body to prevent text selection

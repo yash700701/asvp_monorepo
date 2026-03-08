@@ -82,10 +82,6 @@ export default function SentimentDashboard({ brandId }: { brandId: string }) {
         return <div className="text-sm text-muted-foreground border border-yellow-500 px-2 py-1 bg-yellow-100">No sentiment data.</div>;
     }
 
-    const positiveCount = data.filter(d => d.sentiment_label === "positive").length;
-    const neutralCount = data.filter(d => d.sentiment_label === "neutral").length;
-    const negativeCount = data.filter(d => d.sentiment_label === "negative").length;
-
     const chartData = [...data]
         .reverse()
         .map(d => ({
@@ -98,29 +94,6 @@ export default function SentimentDashboard({ brandId }: { brandId: string }) {
 
     return (
         <div className="space-y-6">
-
-            {/* <Card>
-                <CardHeader>
-                    <CardTitle>AI Sentiment Overview</CardTitle>
-                </CardHeader>
-
-                <CardContent className="grid grid-cols-3 text-center gap-6">
-                    <div>
-                        <p className="text-sm text-muted-foreground">Positive</p>
-                        <p className="text-2xl font-bold text-green-600">{positiveCount}</p>
-                    </div>
-
-                    <div>
-                        <p className="text-sm text-muted-foreground">Neutral</p>
-                        <p className="text-2xl font-bold text-gray-600">{neutralCount}</p>
-                    </div>
-
-                    <div>
-                        <p className="text-sm text-muted-foreground">Negative</p>
-                        <p className="text-2xl font-bold text-red-600">{negativeCount}</p>
-                    </div>
-                </CardContent>
-            </Card> */}
 
             <Card className="rounded-2xl shadow-sm border-zinc-300">
                 <CardHeader>

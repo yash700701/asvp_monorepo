@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ArrowUpRight, ArrowDownRight, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import AddBrandForm from "../brandsPage/AddBrandForm"
 
 type KPI = {

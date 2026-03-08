@@ -34,7 +34,6 @@ export default function FeedbackSection() {
             setSubmitted(true);
         } catch (err) {
             console.error("Feedback submission failed", err);
-            // optional: show toast / inline error
         } finally {
             setLoading(false);
         }

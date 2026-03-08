@@ -42,7 +42,7 @@ export default function VisibilityOverview({
       setLoading(true);
       try {
         const res = axios.get(
-          `http://localhost:4000/dashboard/visibility-overview?brandId=${brandId}`,
+          `${process.env.NEXT_PUBLIC_API_BASE}/dashboard/visibility-overview?brandId=${brandId}`,
           {
             withCredentials: true,
           }

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import AddQueryForm from "@/components/queryPage/AddQueryForm";
 import QueryList from "@/components/queryPage/QueryList";
 import KPIGrid from "@/components/queryPage/QueryStats";
 
@@ -36,14 +35,9 @@ export default function NewQueryPage() {
     const [queries, setQueries] = useState<Query[]>([]);
 
     const [success, setSuccess] = useState<string | null>(null);
-    const [pausingId, setPausingId] = useState<string | null>(null);
-    const [unschedulingId, setUnschedulingId] = useState<string | null>(null);
-    const [runningId, setRunningId] = useState<string | null>(null);
-    const [deletingId, setDeletingId] = useState<string | null>(null);
     const [queriesLoading, setQueriesLoading] = useState(false);
     const [queryError, setQueryError] = useState<string | null>(null);
     const [filterBrandId, setFilterBrandId] = useState("");
-    const [activatingId, setActivatingId] = useState<string | null>(null);
     const [bulkActionLoading, setBulkActionLoading] = useState<string | null>(null);
 
     useEffect(() => {
@@ -92,137 +86,6 @@ export default function NewQueryPage() {
             setQueryError("Failed to load queries");
         } finally {
             setQueriesLoading(false);
-        }
-    }
-
-    async function deleteQuery(queryId: string, options?: { skipRefresh?: boolean }) {
-        if (!confirm("Delete this query? This action cannot be undone.")) {
-            return;
-        }
-
-        try {
-            setDeletingId(queryId);
-            await axios.delete(
-                `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}`,
-                { withCredentials: true }
-            );
-            if (!options?.skipRefresh) {
-                await refreshQueries();
-            }
-        } catch (err: any) {
-            alert(err.response?.data?.error || "Failed to delete query");
-        } finally {
-            setDeletingId(null);
-        }
-    }
-
-    async function activateQuery(queryId: string, options?: { skipRefresh?: boolean }) {
-        setActivatingId(queryId);
-
-        try {
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/auto-schedule`,
-                {},
-                { withCredentials: true }
-            );
-            if (!options?.skipRefresh) {
-                await refreshQueries();
-            }
-        } catch (err: any) {
-            alert(
-                err.response?.data?.error ||
-                err.response?.data?.message ||
-                "Failed to activate query"
-            );
-        } finally {
-            setActivatingId(null);
-        }
-    }
-
-    async function runOnce(queryId: string) {
-        setRunningId(queryId);
-
-        try {
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/manual-run`,
-                {},
-                { withCredentials: true }
-            );
-
-            setSuccess("Query executed successfully");
-            setTimeout(() => setSuccess(null), 2000);
-        } catch (err: any) {
-            alert(
-                err.response?.data?.error ||
-                err.response?.data?.message ||
-                "Failed to run query"
-            );
-        } finally {
-            setRunningId(null);
-        }
-    }
-
-    async function pauseQuery(queryId: string, options?: { skipRefresh?: boolean }) {
-        setPausingId(queryId);
-
-        try {
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/pause`,
-                {},
-                { withCredentials: true }
-            );
-            if (!options?.skipRefresh) {
-                await refreshQueries();
-            }
-        } catch (err: any) {
-            alert(err.response?.data?.error || "Failed to pause query");
-        } finally {
-            setPausingId(null);
-        }
-    }
-
-    async function resumeQuery(queryId: string, options?: { skipRefresh?: boolean }) {
-        setPausingId(queryId);
-
-        try {
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/resume`,
-                {},
-                { withCredentials: true }
-            );
-            if (!options?.skipRefresh) {
-                await refreshQueries();
-            }
-        } catch (err: any) {
-            alert(err.response?.data?.error || "Failed to resume query");
-        } finally {
-            setPausingId(null);
-        }
-    }
-
-    async function unscheduleQuery(queryId: string, options?: { skipRefresh?: boolean; skipConfirm?: boolean }) {
-        if (
-            !options?.skipConfirm &&
-            !confirm("Unschedule this query? It will stop running automatically.")
-        ) {
-            return;
-        }
-
-        setUnschedulingId(queryId);
-
-        try {
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/unschedule`,
-                {},
-                { withCredentials: true }
-            );
-            if (!options?.skipRefresh) {
-                await refreshQueries();
-            }
-        } catch (err: any) {
-            alert(err.response?.data?.error || "Failed to unschedule query");
-        } finally {
-            setUnschedulingId(null);
         }
     }
 

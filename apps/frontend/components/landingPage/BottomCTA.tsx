@@ -47,7 +47,7 @@ export default function BottomCTA() {
                                 className="rounded-2xl object-contain"
                             />
                         </div>
-                          <p className="text-sm italic text-center mt-2 opacity-30 text-gray-100 mb-4">
+                        <p className="text-sm italic text-center mt-2 opacity-30 text-gray-100 mb-4">
                         —— Dashboard
                     </p>
                     </div>

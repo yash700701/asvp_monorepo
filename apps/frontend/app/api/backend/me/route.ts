@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-    const res = await fetch("http://localhost:4000/auth/me", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/auth/me`, {
         credentials: "include", 
         headers: {
         cookie: req.headers.get("cookie") || "",

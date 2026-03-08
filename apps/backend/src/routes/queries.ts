@@ -71,6 +71,27 @@ router.get("/", requireAuth, async (req, res) => {
 
         const result = await db.query(
             `
+            WITH run_stats AS (
+                SELECT
+                    r.query_id,
+                    COUNT(*) FILTER (WHERE r.started_at >= now() - interval '7 days') AS runs_7d,
+                    COUNT(*) FILTER (
+                        WHERE r.started_at >= now() - interval '7 days'
+                        AND r.status = 'failed'
+                    ) AS failed_runs_7d,
+                    COUNT(*) FILTER (
+                        WHERE r.started_at >= now() - interval '7 days'
+                        AND r.status = 'completed'
+                    ) AS success_runs_7d,
+                    COUNT(*) FILTER (WHERE r.started_at >= now() - interval '24 hours') AS runs_24h,
+                    COUNT(*) FILTER (
+                        WHERE r.started_at >= now() - interval '24 hours'
+                        AND r.status = 'failed'
+                    ) AS failed_runs_24h
+                FROM runs r
+                WHERE r.customer_id = $1
+                GROUP BY r.query_id
+            )
             SELECT 
             q.id,
             q.query_text,
@@ -93,12 +114,19 @@ router.get("/", requireAuth, async (req, res) => {
 
             COUNT(DISTINCT r.id) AS runs,
 
-            MAX(r.started_at) AS last_run
+            MAX(r.started_at) AS last_run,
+
+            COALESCE(rs.runs_7d, 0) AS runs_7d,
+            COALESCE(rs.failed_runs_7d, 0) AS failed_runs_7d,
+            COALESCE(rs.success_runs_7d, 0) AS success_runs_7d,
+            COALESCE(rs.runs_24h, 0) AS runs_24h,
+            COALESCE(rs.failed_runs_24h, 0) AS failed_runs_24h
 
         FROM queries q
         JOIN brands b ON q.brand_id = b.id
         LEFT JOIN runs r ON r.query_id = q.id
         LEFT JOIN answers a ON a.run_id = r.id AND a.brand_id = q.brand_id
+        LEFT JOIN run_stats rs ON rs.query_id = q.id
 
         WHERE q.customer_id = $1
         AND q.is_deleted = FALSE
@@ -114,19 +142,71 @@ router.get("/", requireAuth, async (req, res) => {
             q.query_type,
             q.created_at,
             q.is_active,
-            q.is_paused
+            q.is_paused,
+            rs.runs_7d,
+            rs.failed_runs_7d,
+            rs.success_runs_7d,
+            rs.runs_24h,
+            rs.failed_runs_24h
 
         ORDER BY q.created_at DESC;
             `,
             values
         );
 
-        res.json(result.rows);
+        const rows = result.rows;
+
+        const totalQueries = rows.length;
+        const activeQueries = rows.filter((q) => q.is_active).length;
+        const pausedQueries = rows.filter((q) => q.is_active && q.is_paused).length;
+        const inactiveQueries = rows.filter((q) => !q.is_active).length;
+        const queriesNeverRun = rows.filter((q) => Number(q.runs || 0) === 0).length;
+
+        const runs7d = rows.reduce((sum, q) => sum + Number(q.runs_7d || 0), 0);
+        const successRuns7d = rows.reduce((sum, q) => sum + Number(q.success_runs_7d || 0), 0);
+        const failedRuns7d = rows.reduce((sum, q) => sum + Number(q.failed_runs_7d || 0), 0);
+        const runs24h = rows.reduce((sum, q) => sum + Number(q.runs_24h || 0), 0);
+        const failedRuns24h = rows.reduce((sum, q) => sum + Number(q.failed_runs_24h || 0), 0);
+
+        const runSuccessRate7d = runs7d > 0 ? Number(((successRuns7d / runs7d) * 100).toFixed(2)) : 0;
+
+        res.json({
+            queries: rows,
+            summary: {
+                total_queries: totalQueries,
+                active_queries: activeQueries,
+                paused_queries: pausedQueries,
+                inactive_queries: inactiveQueries,
+                run_success_rate_7d: runSuccessRate7d,
+                runs_24h: runs24h,
+                runs_7d: runs7d,
+                queries_never_run: queriesNeverRun,
+                failed_runs_24h: failedRuns24h,
+                failed_runs_7d: failedRuns7d,
+            },
+        });
 
     } catch (err) {
         console.error("Failed to fetch queries:", err);
         res.status(500).json({ error: "Internal server error" });
     }
+});
+
+/**
+ * GET /queries_for_brand_page
+ */
+router.get("/queries_for_brand_page", requireAuth, async (req, res) => {
+
+    const result = await db.query(
+        `
+        SELECT q.id, q.is_active, q.is_paused
+        FROM queries q
+        WHERE customer_id = $1 AND is_deleted = FALSE
+        `,
+        [req.user!.customer_id]
+    );
+
+    res.json(result.rows);
 });
 
 /**

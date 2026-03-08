@@ -132,6 +132,62 @@ router.get("/:id", requireAuth, async (req, res) => {
 });
 
 /**
+ * PATCH /brands/:id
+ * body: partial of { brand_name, canonical_urls, description, logo_url, competitors }
+ */
+router.patch("/:id", requireAuth, async (req, res) => {
+    const { id } = req.params;
+    const { brand_name, canonical_urls, description, logo_url, competitors } = req.body ?? {};
+
+    if (
+        brand_name === undefined &&
+        canonical_urls === undefined &&
+        description === undefined &&
+        logo_url === undefined &&
+        competitors === undefined
+    ) {
+        return res.status(400).json({ error: "No fields to update" });
+    }
+
+    if (canonical_urls !== undefined && !Array.isArray(canonical_urls)) {
+        return res.status(400).json({ error: "canonical_urls must be an array" });
+    }
+
+    if (competitors !== undefined && !Array.isArray(competitors)) {
+        return res.status(400).json({ error: "competitors must be an array" });
+    }
+
+    const result = await db.query(
+        `
+        UPDATE brands
+        SET
+            brand_name = COALESCE($1, brand_name),
+            canonical_urls = COALESCE($2, canonical_urls),
+            description = COALESCE($3, description),
+            logo_url = COALESCE($4, logo_url),
+            competitors = COALESCE($5, competitors)
+        WHERE id = $6 AND customer_id = $7
+        RETURNING *
+        `,
+        [
+            brand_name ?? null,
+            canonical_urls ?? null,
+            description ?? null,
+            logo_url ?? null,
+            competitors ?? null,
+            id,
+            req.user!.customer_id,
+        ]
+    );
+
+    if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Brand not found" });
+    }
+
+    res.json(result.rows[0]);
+});
+
+/**
  * DELETE /brands/:id
  */
 router.delete("/:id", requireAuth, async (req, res) => {

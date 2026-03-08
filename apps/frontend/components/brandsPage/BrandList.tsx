@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Loading from "../Loading";
-import { ArrowRight, Pencil, Info, Trash, Play, Power } from "lucide-react";
+import { ArrowRight, Pencil, Info, Trash, Play, Power, Pause, RotateCcw, StopCircle } from "lucide-react";
 import DescriptionModal from "./DescriptionModal";
-import { BrandSelectionProvider } from "../dashboard/BrandSelectionContext";
 
 type Brand = {
     id: string;
@@ -28,6 +27,12 @@ type Props = {
     deletingId?: string | null;
     onDelete?: (id: string) => void;
     onEdit?: (id: string) => void;
+    actionLoadingKey?: string | null;
+    onRunAllQueriesOnce?: (brandId: string) => void;
+    onActivateAllQueries?: (brandId: string) => void;
+    onPauseAllQueries?: (brandId: string) => void;
+    onResumeAllQueries?: (brandId: string) => void;
+    onUnscheduleAllQueries?: (brandId: string) => void;
 };
 
 export default function BrandList({
@@ -37,6 +42,12 @@ export default function BrandList({
     deletingId,
     onDelete,
     onEdit,
+    actionLoadingKey,
+    onRunAllQueriesOnce,
+    onActivateAllQueries,
+    onPauseAllQueries,
+    onResumeAllQueries,
+    onUnscheduleAllQueries,
 }: Props) {
 
     const [selectedBrand, setSelectedBrand] = useState<any>(null);
@@ -58,8 +69,8 @@ export default function BrandList({
 
                 {/* Error State */}
                 {fetchError && (
-                    <p className="p-4 text-sm text-red-500">
-                        Error loading brands: {fetchError}
+                    <p className="text-sm text-red-500">
+                        Error : {fetchError}
                     </p>
                 )}
 
@@ -198,17 +209,43 @@ export default function BrandList({
                             <div className="flex items-end justify-end gap-2 flex-wrap">
 
                                 <button
-                                    onClick={() => onEdit?.(brand.id)} 
-                                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 rounded-md transition">
+                                    onClick={() => onRunAllQueriesOnce?.(brand.id)}
+                                    disabled={actionLoadingKey === `${brand.id}:run_once`}
+                                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 rounded-md transition disabled:opacity-50">
                                     <Play size={14} />
-                                    Run all queries once
+                                    {actionLoadingKey === `${brand.id}:run_once` ? "Running..." : "Run all once"}
                                 </button>
 
                                 <button
-                                    onClick={() => onEdit?.(brand.id)} 
-                                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 rounded-md transition">
+                                    onClick={() => onActivateAllQueries?.(brand.id)}
+                                    disabled={actionLoadingKey === `${brand.id}:activate`}
+                                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 rounded-md transition disabled:opacity-50">
                                     <Power size={14} />
-                                    Activate all queries
+                                    {actionLoadingKey === `${brand.id}:activate` ? "Activating..." : "Activate all"}
+                                </button>
+
+                                <button
+                                    onClick={() => onPauseAllQueries?.(brand.id)}
+                                    disabled={actionLoadingKey === `${brand.id}:pause`}
+                                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 rounded-md transition disabled:opacity-50">
+                                    <Pause size={14} />
+                                    {actionLoadingKey === `${brand.id}:pause` ? "Pausing..." : "Pause all"}
+                                </button>
+
+                                <button
+                                    onClick={() => onResumeAllQueries?.(brand.id)}
+                                    disabled={actionLoadingKey === `${brand.id}:resume`}
+                                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 rounded-md transition disabled:opacity-50">
+                                    <RotateCcw size={14} />
+                                    {actionLoadingKey === `${brand.id}:resume` ? "Resuming..." : "Resume all"}
+                                </button>
+
+                                <button
+                                    onClick={() => onUnscheduleAllQueries?.(brand.id)}
+                                    disabled={actionLoadingKey === `${brand.id}:unschedule`}
+                                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 rounded-md transition disabled:opacity-50">
+                                    <StopCircle size={14} />
+                                    {actionLoadingKey === `${brand.id}:unschedule` ? "Stopping..." : "Unschedule all"}
                                 </button>
                                 
                                 <button

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ArrowUpRight, ArrowDownRight, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import AddQueryForm from "../queryPage/AddQueryForm"
 
 type KPI = {
@@ -9,25 +9,59 @@ type KPI = {
     value: number | string
 }
 
+type Query = {
+    id: string
+    is_active: boolean
+    is_paused: boolean
+    runs: number
+    runs_7d: number
+    failed_runs_7d: number
+    success_runs_7d: number
+    runs_24h: number
+    failed_runs_24h: number
+}
+
 export default function KPIGrid({
     brands,
+    queries,
     onCreated,
 }: {
     brands: any[]
+    queries: Query[]
     onCreated: () => void
 }) {
 
     const [showAddQuery, setShowAddQuery] = useState(false)
 
+    const totalQueries = queries.length
+    const activeQueries = queries.filter((q) => q.is_active).length
+    const pausedQueries = queries.filter((q) => q.is_active && q.is_paused).length
+    const inactiveQueries = queries.filter((q) => !q.is_active).length
+    const queriesNeverRun = queries.filter((q) => Number(q.runs) === 0).length
+
+    const runs7d = queries.reduce((sum, q) => sum + Number(q.runs_7d || 0), 0)
+    const successRuns7d = queries.reduce((sum, q) => sum + Number(q.success_runs_7d || 0), 0)
+    const failedRuns7d = queries.reduce((sum, q) => sum + Number(q.failed_runs_7d || 0), 0)
+
+    const runs24h = queries.reduce((sum, q) => sum + Number(q.runs_24h || 0), 0)
+    const failedRuns24h = queries.reduce((sum, q) => sum + Number(q.failed_runs_24h || 0), 0)
+
+    const runSuccessRate7d = runs7d > 0 ? ((successRuns7d / runs7d) * 100).toFixed(1) : "0.0"
+
     const kpis: KPI[] = [
-        { title: "Total Brands", value: brands.length },
-        { title: "Total Queries", value: 0 },
-        { title: "Active Queries", value: 0 },
+        { title: "Total Queries", value: totalQueries },
+        { title: "Active Queries", value: activeQueries },
+        { title: "Paused Queries", value: pausedQueries },
+        { title: "Inactive Queries", value: inactiveQueries },
+        { title: "Run Success Rate (7d)", value: `${runSuccessRate7d}%` },
+        { title: "Runs (24h / 7d)", value: `${runs24h} / ${runs7d}` },
+        { title: "Queries Never Run", value: queriesNeverRun },
+        { title: "Failed Runs (24h / 7d)", value: `${failedRuns24h} / ${failedRuns7d}` },
     ]
 
     return (
         <>
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
 
                 {/* Add Query Card */}
                 <div

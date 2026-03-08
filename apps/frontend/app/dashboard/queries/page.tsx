@@ -17,6 +17,18 @@ type Query = {
     created_at: string;
     is_active: boolean;
     is_paused: boolean;
+    responses: number;
+    brand_mentions: number;
+    visibility: number;
+    prominence: number;
+    sentiment: number;
+    runs: number;
+    last_run: string | null;
+    runs_7d: number;
+    failed_runs_7d: number;
+    success_runs_7d: number;
+    runs_24h: number;
+    failed_runs_24h: number;
 };
 
 export default function NewQueryPage() {
@@ -32,6 +44,7 @@ export default function NewQueryPage() {
     const [queryError, setQueryError] = useState<string | null>(null);
     const [filterBrandId, setFilterBrandId] = useState("");
     const [activatingId, setActivatingId] = useState<string | null>(null);
+    const [bulkActionLoading, setBulkActionLoading] = useState<string | null>(null);
 
     useEffect(() => {
         axios
@@ -53,7 +66,7 @@ export default function NewQueryPage() {
                     : `${process.env.NEXT_PUBLIC_API_BASE}/queries`;
 
                 const res = await axios.get(url, { withCredentials: true });
-                setQueries(res.data);
+                setQueries(res.data?.queries ?? res.data);
             } catch {
                 setQueryError("Failed to load queries");
             } finally {
@@ -74,7 +87,7 @@ export default function NewQueryPage() {
                 : `${process.env.NEXT_PUBLIC_API_BASE}/queries`;
 
             const res = await axios.get(url, { withCredentials: true });
-            setQueries(res.data);
+            setQueries(res.data?.queries ?? res.data);
         } catch {
             setQueryError("Failed to load queries");
         } finally {
@@ -82,7 +95,7 @@ export default function NewQueryPage() {
         }
     }
 
-    async function deleteQuery(queryId: string) {
+    async function deleteQuery(queryId: string, options?: { skipRefresh?: boolean }) {
         if (!confirm("Delete this query? This action cannot be undone.")) {
             return;
         }
@@ -93,7 +106,9 @@ export default function NewQueryPage() {
                 `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}`,
                 { withCredentials: true }
             );
-            await refreshQueries();
+            if (!options?.skipRefresh) {
+                await refreshQueries();
+            }
         } catch (err: any) {
             alert(err.response?.data?.error || "Failed to delete query");
         } finally {
@@ -101,7 +116,7 @@ export default function NewQueryPage() {
         }
     }
 
-    async function activateQuery(queryId: string) {
+    async function activateQuery(queryId: string, options?: { skipRefresh?: boolean }) {
         setActivatingId(queryId);
 
         try {
@@ -110,7 +125,9 @@ export default function NewQueryPage() {
                 {},
                 { withCredentials: true }
             );
-            await refreshQueries();
+            if (!options?.skipRefresh) {
+                await refreshQueries();
+            }
         } catch (err: any) {
             alert(
                 err.response?.data?.error ||
@@ -145,7 +162,7 @@ export default function NewQueryPage() {
         }
     }
 
-    async function pauseQuery(queryId: string) {
+    async function pauseQuery(queryId: string, options?: { skipRefresh?: boolean }) {
         setPausingId(queryId);
 
         try {
@@ -154,7 +171,9 @@ export default function NewQueryPage() {
                 {},
                 { withCredentials: true }
             );
-            await refreshQueries();
+            if (!options?.skipRefresh) {
+                await refreshQueries();
+            }
         } catch (err: any) {
             alert(err.response?.data?.error || "Failed to pause query");
         } finally {
@@ -162,7 +181,7 @@ export default function NewQueryPage() {
         }
     }
 
-    async function resumeQuery(queryId: string) {
+    async function resumeQuery(queryId: string, options?: { skipRefresh?: boolean }) {
         setPausingId(queryId);
 
         try {
@@ -171,7 +190,9 @@ export default function NewQueryPage() {
                 {},
                 { withCredentials: true }
             );
-            await refreshQueries();
+            if (!options?.skipRefresh) {
+                await refreshQueries();
+            }
         } catch (err: any) {
             alert(err.response?.data?.error || "Failed to resume query");
         } finally {
@@ -179,8 +200,9 @@ export default function NewQueryPage() {
         }
     }
 
-    async function unscheduleQuery(queryId: string) {
+    async function unscheduleQuery(queryId: string, options?: { skipRefresh?: boolean; skipConfirm?: boolean }) {
         if (
+            !options?.skipConfirm &&
             !confirm("Unschedule this query? It will stop running automatically.")
         ) {
             return;
@@ -194,7 +216,9 @@ export default function NewQueryPage() {
                 {},
                 { withCredentials: true }
             );
-            await refreshQueries();
+            if (!options?.skipRefresh) {
+                await refreshQueries();
+            }
         } catch (err: any) {
             alert(err.response?.data?.error || "Failed to unschedule query");
         } finally {
@@ -202,28 +226,115 @@ export default function NewQueryPage() {
         }
     }
 
+    async function runBulkAction(
+        action: "run_once" | "delete" | "pause" | "activate" | "unschedule" | "resume",
+        queryIds: string[]
+    ) {
+        if (queryIds.length === 0) return;
+
+        const requiresConfirm = action === "delete" || action === "unschedule";
+        if (requiresConfirm) {
+            const ok = confirm(`Apply "${action}" to ${queryIds.length} selected queries?`);
+            if (!ok) return;
+        }
+
+        setBulkActionLoading(action);
+
+        const failed: string[] = [];
+        let runLimitHit = false;
+
+        for (const queryId of queryIds) {
+            try {
+                if (action === "run_once") {
+                    await axios.post(
+                        `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/manual-run`,
+                        {},
+                        { withCredentials: true }
+                    );
+                    continue;
+                }
+
+                if (action === "delete") {
+                    await axios.delete(
+                        `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}`,
+                        { withCredentials: true }
+                    );
+                    continue;
+                }
+
+                if (action === "pause") {
+                    await axios.post(
+                        `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/pause`,
+                        {},
+                        { withCredentials: true }
+                    );
+                    continue;
+                }
+
+                if (action === "activate") {
+                    await axios.post(
+                        `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/auto-schedule`,
+                        {},
+                        { withCredentials: true }
+                    );
+                    continue;
+                }
+
+                if (action === "unschedule") {
+                    await axios.post(
+                        `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/unschedule`,
+                        {},
+                        { withCredentials: true }
+                    );
+                    continue;
+                }
+
+                if (action === "resume") {
+                    await axios.post(
+                        `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/resume`,
+                        {},
+                        { withCredentials: true }
+                    );
+                }
+            } catch (err: any) {
+                const code = err?.response?.data?.error;
+                if (action === "run_once" && code === "run_limit_exceeded") {
+                    runLimitHit = true;
+                    break;
+                }
+                failed.push(queryId);
+            }
+        }
+
+        await refreshQueries();
+        setBulkActionLoading(null);
+
+        if (runLimitHit) {
+            alert("Run limit reached while running selected queries.");
+            return;
+        }
+
+        if (failed.length > 0) {
+            alert(`${failed.length} selected queries failed for action "${action}".`);
+            return;
+        }
+
+        setSuccess(`Applied "${action}" to ${queryIds.length} queries.`);
+        setTimeout(() => setSuccess(null), 2000);
+    }
+
     return (
         <main className="pt-28 sm:pt-0 space-y-8">
-            <KPIGrid brands={brands} onCreated={refreshQueries}/>
-            {/* <AddQueryForm brands={brands} onCreated={refreshQueries} /> */}
+            <KPIGrid brands={brands} queries={queries} onCreated={refreshQueries}/>
             <QueryList
                 brands={brands}
                 queries={queries}
                 queriesLoading={queriesLoading}
                 queryError={queryError}
                 filterBrandId={filterBrandId}
-                runningId={runningId}
-                pausingId={pausingId}
-                activatingId={activatingId}
-                deletingId={deletingId}
-                unschedulingId={unschedulingId}
                 onFilterBrandChange={setFilterBrandId}
-                onRunOnce={runOnce}
-                onDelete={deleteQuery}
-                onActivate={activateQuery}
-                onPause={pauseQuery}
-                onResume={resumeQuery}
-                onUnschedule={unscheduleQuery}
+                onBulkAction={runBulkAction}
+                bulkActionLoading={bulkActionLoading}
             />
             {success && (
                 <div className="border border-green-300 bg-green-50 px-3 py-1.5 text-xs text-green-700 rounded">

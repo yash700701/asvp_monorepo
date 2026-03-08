@@ -11,10 +11,10 @@ export async function GET(req: NextRequest) {
         new URL("/dashboard", req.url)
     );
 
-    // Cookie is now set by Next.js (same origin)
+    // Cookie is set by Next.js (same origin)
     res.cookies.set("auth_token", token, {
         httpOnly: true,
-        sameSite: "lax", // no cross-site now
+        sameSite: "lax", // no cross-site 
         secure: false,   // localhost
         path: "/",
     });

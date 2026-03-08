@@ -5,7 +5,7 @@ import axios from "axios";
 
 import BrandStats from "@/components/brandsPage/BrandStats";
 import BrandList from "@/components/brandsPage/BrandList";
-import { log } from "console";
+import EditBrandModal from "@/components/brandsPage/EditBrandModal";
 
 type brands = {
   id: string;
@@ -28,10 +28,12 @@ export default function NewBrandPage() {
   const [brandsCount, setBrandsCount] = useState(0);
   const [queryCount, setQueryCount] = useState(0);
   const [activeQueryCount, setActiveQueryCount] = useState(0);
-  const [visibility, setVisibility] = useState(72);
 
   const [fetchBrandsError, setFetchBrandsError] = useState<string | null>(null);
   const [brandsLoading, setBrandsLoading] = useState(false);
+  const [actionLoadingKey, setActionLoadingKey] = useState<string | null>(null);
+  const [editingBrand, setEditingBrand] = useState<brands | null>(null);
+  const [savingBrand, setSavingBrand] = useState(false);
 
   useEffect(() => {
     setBrandsLoading(true);
@@ -49,7 +51,7 @@ export default function NewBrandPage() {
 
   useEffect(() => {
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_BASE}/queries`, {
+      .get(`${process.env.NEXT_PUBLIC_API_BASE}/queries/queries_for_brand_page`, {
         withCredentials: true,
       })
       .then((res) => {
@@ -73,6 +75,137 @@ export default function NewBrandPage() {
       .finally(() => setBrandsLoading(false));
   }
 
+  async function deleteBrand(brandId: string) {
+    const ok = confirm("Delete this brand? This may affect linked queries.");
+    if (!ok) return;
+
+    try {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE}/brands/${brandId}`, {
+        withCredentials: true,
+      });
+      await refreshBrands();
+    } catch (err: any) {
+      alert(err.response?.data?.error || "Failed to delete brand");
+    }
+  }
+
+  function editBrand(brandId: string) {
+    const brand = brands.find((b) => b.id === brandId);
+    if (!brand) return;
+    setEditingBrand(brand);
+  }
+
+  async function saveBrandEdits(payload: {
+    brand_name: string;
+    canonical_urls: string[];
+    description: string;
+    logo_url: string;
+    competitors: string[];
+  }) {
+    if (!editingBrand) return;
+
+    try {
+      setSavingBrand(true);
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/brands/${editingBrand.id}`,
+        payload,
+        { withCredentials: true }
+      );
+      await refreshBrands();
+      setEditingBrand(null);
+    } catch (err: any) {
+      alert(err.response?.data?.error || "Failed to update brand");
+    } finally {
+      setSavingBrand(false);
+    }
+  }
+
+  async function getBrandQueryIds(brandId: string): Promise<string[]> {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_BASE}/queries?brand_id=${brandId}`,
+      { withCredentials: true }
+    );
+    const queries = res.data?.queries ?? res.data ?? [];
+    return queries.map((q: any) => q.id);
+  }
+
+  async function runBrandAction(
+    brandId: string,
+    action: "run_once" | "activate" | "pause" | "resume" | "unschedule"
+  ) {
+    try {
+      setActionLoadingKey(`${brandId}:${action}`);
+
+      const queryIds = await getBrandQueryIds(brandId);
+      if (queryIds.length === 0) {
+        alert("No queries found for this brand.");
+        return;
+      }
+
+      if (action === "unschedule") {
+        const ok = confirm(`Unschedule all ${queryIds.length} queries for this brand?`);
+        if (!ok) return;
+      }
+
+      for (const queryId of queryIds) {
+        if (action === "run_once") {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/manual-run`,
+            {},
+            { withCredentials: true }
+          );
+          continue;
+        }
+
+        if (action === "activate") {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/auto-schedule`,
+            {},
+            { withCredentials: true }
+          );
+          continue;
+        }
+
+        if (action === "pause") {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/pause`,
+            {},
+            { withCredentials: true }
+          );
+          continue;
+        }
+
+        if (action === "resume") {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/resume`,
+            {},
+            { withCredentials: true }
+          );
+          continue;
+        }
+
+        if (action === "unschedule") {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_BASE}/queries/${queryId}/unschedule`,
+            {},
+            { withCredentials: true }
+          );
+        }
+      }
+
+      await refreshBrands();
+      const queryRes = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/queries/queries_for_brand_page`, {
+        withCredentials: true,
+      });
+      setQueryCount(queryRes.data.length);
+      setActiveQueryCount(queryRes.data.filter((q: any) => q.is_active && !q.is_paused).length);
+    } catch (err: any) {
+      alert(err.response?.data?.error || `Failed to ${action} queries for this brand`);
+    } finally {
+      setActionLoadingKey(null);
+    }
+  }
+
   return (
     <main className="pt-28 sm:pt-0 space-y-8">
 
@@ -83,8 +216,29 @@ export default function NewBrandPage() {
       </div>
 
       <div className="lg:col-span-2">
-        <BrandList brands={brands} brandsLoading={brandsLoading} fetchError={fetchBrandsError} />
+        <BrandList
+          brands={brands}
+          brandsLoading={brandsLoading}
+          fetchError={fetchBrandsError}
+          onEdit={editBrand}
+          onDelete={deleteBrand}
+          actionLoadingKey={actionLoadingKey}
+          onRunAllQueriesOnce={(brandId) => runBrandAction(brandId, "run_once")}
+          onActivateAllQueries={(brandId) => runBrandAction(brandId, "activate")}
+          onPauseAllQueries={(brandId) => runBrandAction(brandId, "pause")}
+          onResumeAllQueries={(brandId) => runBrandAction(brandId, "resume")}
+          onUnscheduleAllQueries={(brandId) => runBrandAction(brandId, "unschedule")}
+        />
       </div>
+
+      {editingBrand && (
+        <EditBrandModal
+          brand={editingBrand}
+          saving={savingBrand}
+          onClose={() => setEditingBrand(null)}
+          onSave={saveBrandEdits}
+        />
+      )}
 
     </main>
   );

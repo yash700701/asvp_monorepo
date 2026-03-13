@@ -7,9 +7,11 @@ import PricingSection from "@/components/landingPage/SubscriptionPlans";
 import Loading from "@/components/Loading";
 
 type UsageResponse = {
-    plan: "free" | "pro" | "enterprise";
+    plan: "free" | "premium" | "custom";
     used: number;
     limit: number;
+    billing_status: "inactive" | "pending" | "active";
+    plan_expires_at: string | null;
 };
 
 const PLAN_DETAILS: Record<
@@ -24,26 +26,26 @@ const PLAN_DETAILS: Record<
     free: {
         name: "Free",
         description: "For trying out AI visibility tracking",
-        price: "₹0 / month",
+        price: "Rs 0 / month",
         features: ["Up to 100 query runs", "Basic analytics", "Community support"],
     },
-    pro: {
-        name: "Pro",
+    premium: {
+        name: "Premium",
         description: "For growing brands",
-        price: "₹999 / month",
+        price: "Rs 999 / 30 days",
         features: [
-            "Up to 10,000 query runs",
+            "Up to 5,000 query runs",
             "Advanced analytics",
             "Recommendations",
             "Priority support",
         ],
     },
-    enterprise: {
-        name: "Enterprise",
-        description: "For large teams & agencies",
-        price: "Custom pricing",
+    custom: {
+        name: "Custom",
+        description: "For large teams and agencies",
+        price: "Custom pricing / 30 days",
         features: [
-            "Unlimited runs",
+            "Up to 20,000 query runs",
             "Custom integrations",
             "Dedicated support",
             "SLA",
@@ -69,7 +71,6 @@ export default function BillingUsagePage() {
             .finally(() => setLoading(false));
     }, []);
 
-    // Scroll when pricing becomes visible
     useEffect(() => {
         if (showPricing && pricingRef.current) {
             pricingRef.current.scrollIntoView({
@@ -80,6 +81,15 @@ export default function BillingUsagePage() {
     }, [showPricing]);
 
     const plan = usage ? PLAN_DETAILS[usage.plan] : null;
+    const expiryLabel = usage?.plan_expires_at
+        ? new Date(usage.plan_expires_at).toLocaleString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        })
+        : null;
 
     return (
         <main className="max-w-3xl pt-28 sm:pt-0 space-y-2">
@@ -108,7 +118,7 @@ export default function BillingUsagePage() {
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold">Current Plan</h2>
 
-                        {usage.plan !== "enterprise" && (
+                        {usage.plan !== "custom" && (
                             <button
                                 onClick={() => setShowPricing(true)}
                                 className="text-sm px-4 py-2 rounded bg-black text-white hover:bg-gray-900"
@@ -122,6 +132,15 @@ export default function BillingUsagePage() {
                         <div className="font-medium">{plan.name}</div>
                         <div className="text-sm text-gray-600">{plan.description}</div>
                         <div className="mt-1 text-sm font-semibold">{plan.price}</div>
+                        <div className="mt-2 text-sm text-gray-700">
+                            Billing status: <span className="font-medium capitalize">{usage.billing_status}</span>
+                        </div>
+                        <div className="text-sm text-gray-700">
+                            Plan expires: <span className="font-medium">{expiryLabel || "No active expiry"}</span>
+                        </div>
+                        <div className="text-sm text-gray-700">
+                            Usage this month: <span className="font-medium">{usage.used} / {usage.limit}</span>
+                        </div>
                     </div>
 
                     <ul className="list-disc pl-5 text-sm text-gray-700 space-y-1">

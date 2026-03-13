@@ -17,6 +17,7 @@ import billingRoutes from "../routes/billing";
 import feedbackRoutes from "../routes/feedback";
 import noAccessRoutes from "../routes/noAccessRoutes";
 import dashboardRoute from "../routes/dashboard"
+import webhookRoutes from "../routes/billing-webhook";
 
 import { apiLimiter } from "../middleware/rateLimit";
 import { requireAuth } from "../middleware/requireAuth";
@@ -26,10 +27,14 @@ export const createApp = () => {
 
     app.use(
         cors({
-            origin: "http://localhost:3000",
+            origin: `${process.env.FRONTEND_URL}`,
             credentials: true,
         })
     );
+
+    // Must be mounted before JSON parsing so webhook handlers can read the raw body.
+    app.use("/billing", webhookRoutes);
+
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());

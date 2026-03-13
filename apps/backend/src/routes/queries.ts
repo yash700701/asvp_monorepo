@@ -4,6 +4,7 @@ import { requireAuth } from "../middleware/requireAuth";
 import { getTemporalClient } from "../lib/temporalClient";
 import { frequencyToCron } from "../lib/cron";
 import { WorkflowExecutionAlreadyStartedError } from "@temporalio/client";
+import { syncPlanExpiry } from "../billing/syncPlanExpiry";
 
 const router = Router();
 
@@ -310,6 +311,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
  * Manually trigger a Temporal workflow for a query
  */
 router.post("/:id/manual-run", requireAuth, async (req, res) => {
+    await syncPlanExpiry(req.user!.customer_id);
 
     const usageRes = await db.query(
         `
@@ -404,6 +406,7 @@ router.post("/:id/manual-run", requireAuth, async (req, res) => {
  * POST /queries/:id/auto-schedule
  */
 router.post("/:id/auto-schedule", requireAuth, async (req, res) => {
+    await syncPlanExpiry(req.user!.customer_id);
 
     const usageRes = await db.query(
         `

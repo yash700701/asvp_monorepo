@@ -1,14 +1,21 @@
+import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config({
+    path: path.resolve(__dirname, "../../../../.env"),
+});
+
 export const PLANS = {
     free: {
         run_limit: 100,
     },
-    pro: {
+    premium: {
         run_limit: 5000,
-        razorpay_plan_id: "plan_pro_monthly",
+        payment_amount: 99900,
     },
-    business: {
+    custom: {
         run_limit: 20000,
-        razorpay_plan_id: "plan_business_monthly",
+        payment_amount: 499900,
     },
 } as const;
 

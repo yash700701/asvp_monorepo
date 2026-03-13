@@ -165,4 +165,18 @@ router.get("/entities", async (req, res) => {
     }
 });
 
+router.get("/answers", async (req, res) => {
+    try {
+        const customerId = req.user?.customer_id;
+        const query = `
+        SELECT * FROM answers WHERE customer_id = $1
+        `;
+        const result = await db.query(query, [customerId]);
+        return res.json({ success: true, data: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 export default router;

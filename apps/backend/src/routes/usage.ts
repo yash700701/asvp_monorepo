@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/requireAuth";
 import { db } from "../db/client";
+import { syncPlanExpiry } from "../billing/syncPlanExpiry";
 
 const router = Router();
 
@@ -8,6 +9,8 @@ router.get("/usage", requireAuth, async (req, res) => {
     const customerId = req.user!.customer_id;
 
     try {
+        await syncPlanExpiry(customerId);
+
         const usageRes = await db.query(
             `
             SELECT COUNT(*)::int AS count
@@ -22,7 +25,7 @@ router.get("/usage", requireAuth, async (req, res) => {
 
         const planRes = await db.query(
             `
-            SELECT plan, run_limit
+            SELECT plan, run_limit, billing_status, plan_expires_at
             FROM customers
             WHERE id = $1
             `,
@@ -32,7 +35,9 @@ router.get("/usage", requireAuth, async (req, res) => {
         res.json({
             plan: planRes.rows[0].plan,
             used,
-            limit: planRes.rows[0].run_limit
+            limit: planRes.rows[0].run_limit,
+            billing_status: planRes.rows[0].billing_status,
+            plan_expires_at: planRes.rows[0].plan_expires_at,
         });
     } catch (error) {
         console.error("Error fetching usage:", error);

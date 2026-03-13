@@ -21,7 +21,7 @@ export default function PricingSection() {
             action: null,
         },
         {
-            name: "Basic",
+            name: "Premium",
             price: "₹999 / month",
             description: "Best for startups and growing brands.",
             features: [
@@ -32,7 +32,7 @@ export default function PricingSection() {
                 "Email support",
             ],
             popular: true,
-            action: "pro" as const,
+            action: "premium" as const,
         },
         {
             name: "Custom",
@@ -46,16 +46,20 @@ export default function PricingSection() {
                 "Dedicated support",
             ],
             popular: false,
-            action: "contact",
+            action: "custom" as const,
         },
     ];
 
-    async function handleSubscribe(plan: "pro") {
+    async function handleSubscribe(plan: "premium" | "custom") {
         try {
             const { payment_url } = await subscribeToPlan(plan);
             window.location.href = payment_url; 
         } catch (err: any) {
-            alert(err.response?.data?.error || "Failed to start subscription");
+            const message =
+                err.response?.data?.details ||
+                err.response?.data?.error ||
+                "Failed to start subscription";
+            alert(message);
         }
     }
 
@@ -105,16 +109,16 @@ export default function PricingSection() {
                                     ))}
                                 </ul>
 
-                                {plan.action === "pro" && (
+                                {plan.action === "premium" && (
                                     <Button
                                         className="w-full border cursor-pointer rounded-xl"
-                                        onClick={() => handleSubscribe("pro")}
+                                        onClick={() => handleSubscribe("premium")}
                                     >
                                         Get Started
                                     </Button>
                                 )}
 
-                                {plan.action === "contact" && (
+                                {plan.action === "custom" && (
                                     <Button variant="outline" className="w-full rounded-xl cursor-pointer text-zinc-200">
                                         Contact Sales
                                     </Button>

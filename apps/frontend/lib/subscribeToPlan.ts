@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function subscribeToPlan(plan: "pro" | "business") {
+export async function subscribeToPlan(plan: "premium" | "custom") {
     const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE}/billing/subscribe`,
         { plan },
@@ -8,7 +8,7 @@ export async function subscribeToPlan(plan: "pro" | "business") {
     );
 
     return res.data as {
-        subscription_id: string;
+        payment_link_id: string;
         payment_url: string;
     };
 }

@@ -5,6 +5,7 @@ import { signJWT } from "../auth/jwt";
 import path from "path";
 import dotenv from "dotenv";
 import { db } from "../db/client";
+import { ensureCustomerAlertsSchedule } from "../lib/alertsScheduler";
 
 dotenv.config({
     path: path.resolve(__dirname, "../../../../.env"),
@@ -49,6 +50,10 @@ router.get(
                 `${process.env.FRONTEND_URL}/no-access`
             );
         }
+
+        ensureCustomerAlertsSchedule(user.customer_id).catch((error) => {
+            console.error("Failed to ensure alerts schedule for customer:", error);
+        });
 
         res.redirect(`${process.env.FRONTEND_URL}/api/auth/callback?token=${token}`);
     }

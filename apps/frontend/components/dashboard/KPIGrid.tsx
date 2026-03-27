@@ -6,7 +6,7 @@ import { ArrowUpRight, ArrowDownRight } from "lucide-react"
 type KPI = {
     title: string
     value?: number | string
-    trend?: string
+    trend?: string | null
     mentions?: number
     total?: number
     position?: string | number
@@ -21,33 +21,41 @@ export default function KPIGrid({
     averageVisibility,
     visibilityChange,
     dominantSentiment,
+    sentimentTrend,
     averageProminence,
     averageProminenceposition,
+    prominenceTrend,
     mentions,
     totalResponses,
     mentionRate,
+    mentionRateTrend,
+    totalResponsesTrend,
 }: {
     averageVisibility: number | null;
     visibilityChange: string | null;
     dominantSentiment: "positive" | "neutral" | "negative" | null;
+    sentimentTrend: string | null;
     averageProminence: number | null;
     averageProminenceposition: string | null;
+    prominenceTrend: string | null;
     mentions: number;
     totalResponses: number;
     mentionRate: number;
+    mentionRateTrend: string | null;
+    totalResponsesTrend: string | null;
 }) {
     const kpis: KPI[] = [
-        { title: "Visibility Score", value: averageVisibility ?? 0, trend: visibilityChange ?? "0%" },
+        { title: "Visibility Score", value: averageVisibility ?? 0, trend: visibilityChange },
         {
             title: "Brand Mention Rate",
             mentions: mentions,
             total: totalResponses,
             value: mentionRate,
-            trend: "+3.1%"
+            trend: mentionRateTrend
         },
-        { title: "Avg Prominence", value: averageProminence ?? 0, position: averageProminenceposition ?? "0", trend: "-1.4%" },
-        { title: "Sentiment Score", value: formatSentimentLabel(dominantSentiment) },
-        { title: "Total Answers", value: totalResponses, trend: "+12%" },
+        { title: "Avg Prominence", value: averageProminence ?? 0, position: averageProminenceposition ?? "0", trend: prominenceTrend },
+        { title: "Sentiment Score", value: formatSentimentLabel(dominantSentiment), trend: sentimentTrend },
+        { title: "Total Answers", value: totalResponses, trend: totalResponsesTrend },
     ]
 
     return (
@@ -61,11 +69,12 @@ export default function KPIGrid({
 
 function KPICard({ title, value, trend, mentions, total, position }: KPI) {
     const isNumber = typeof value === "number"
+    const hasNumericTrend = Boolean(trend && trend !== "N/A")
 
     const [displayValue, setDisplayValue] = useState(0)
     const [displayTrend, setDisplayTrend] = useState(0)
 
-    const trendNumber = trend ? Number(trend.replace("%", "").replace("+", "").replace("-", "")) : 0
+    const trendNumber = hasNumericTrend ? Number(trend!.replace("%", "").replace("+", "").replace("-", "")) : 0
     const trendSign = trend?.startsWith("-") ? -1 : 1
 
     const isPositiveTrend = trend?.startsWith("+")
@@ -95,7 +104,10 @@ function KPICard({ title, value, trend, mentions, total, position }: KPI) {
 
     // Trend animation
     useEffect(() => {
-        if (!trend) return
+        if (!hasNumericTrend) {
+            setDisplayTrend(0)
+            return
+        }
 
         let start = 0
         const duration = 700
@@ -113,7 +125,7 @@ function KPICard({ title, value, trend, mentions, total, position }: KPI) {
         }, 16)
 
         return () => clearInterval(counter)
-    }, [trend, trendNumber])
+    }, [hasNumericTrend, trendNumber])
 
     return (
         <div className="bg-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between">
@@ -166,16 +178,22 @@ function KPICard({ title, value, trend, mentions, total, position }: KPI) {
                                 : "text-gray-500"
                             }`}
                     >
-                        {isPositiveTrend && (
+                        {hasNumericTrend && isPositiveTrend && (
                             <ArrowUpRight size={16} className="animate-pulse" />
                         )}
 
-                        {isNegativeTrend && (
+                        {hasNumericTrend && isNegativeTrend && (
                             <ArrowDownRight size={16} className="animate-pulse" />
                         )}
 
-                        {trendSign < 0 ? "-" : "+"}
-                        {displayTrend.toFixed(1)}%
+                        {hasNumericTrend ? (
+                            <>
+                                {trendSign < 0 ? "-" : "+"}
+                                {displayTrend.toFixed(1)}%
+                            </>
+                        ) : (
+                            "N/A"
+                        )}
                     </div>
                 )}
             </div>

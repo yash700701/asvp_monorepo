@@ -13,6 +13,8 @@ type TopBarProps = {
     brands: Brand[]
     selectedBrandId: string | null
     onSelectBrand: (brandId: string) => void
+    selectedDateRange: "7d" | "30d"
+    onSelectDateRange: (range: "7d" | "30d") => void
     loading: boolean
     brandLoadingError: string | null
 }
@@ -21,24 +23,25 @@ export default function TopBar({
     brands,
     selectedBrandId,
     onSelectBrand,
+    selectedDateRange,
+    onSelectDateRange,
     loading,
     brandLoadingError
 }: TopBarProps) {
     const [showBrandDropdown, setShowBrandDropdown] = useState(false)
-
-    const [dateRange, setDateRange] = useState("Last 7 days")
     const [showDateDropdown, setShowDateDropdown] = useState(false)
 
     const dateOptions = [
-        "Last 7 days",
-        "Last 30 days",
+        { label: "Last 7 days", value: "7d" as const },
+        { label: "Last 30 days", value: "30d" as const },
     ]
 
     const selectedBrand =
         brands.find((brand) => brand.id === selectedBrandId) || null
 
     const handleExport = () => {
-        alert(`Exporting data for ${selectedBrand?.name || "Unknown"} (${dateRange})`)
+        const selectedLabel = dateOptions.find((option) => option.value === selectedDateRange)?.label || "Last 7 days"
+        alert(`Exporting data for ${selectedBrand?.name || "Unknown"} (${selectedLabel})`)
     }
 
     return (
@@ -84,7 +87,7 @@ export default function TopBar({
                         onClick={() => setShowDateDropdown(!showDateDropdown)}
                         className="flex items-center gap-2 text-sm font-medium transition"
                     >
-                        {dateRange}
+                        {dateOptions.find((option) => option.value === selectedDateRange)?.label || "Last 7 days"}
                         <ChevronDown size={16} />
                     </button>
 
@@ -92,14 +95,14 @@ export default function TopBar({
                         <div className="absolute right-0 mt-2 w-48 bg-white border shadow-lg z-50">
                             {dateOptions.map((option) => (
                                 <button
-                                    key={option}
+                                    key={option.value}
                                     onClick={() => {
-                                        setDateRange(option)
+                                        onSelectDateRange(option.value)
                                         setShowDateDropdown(false)
                                     }}
                                     className="w-full text-left px-2 py-1 text-sm hover:bg-gray-100"
                                 >
-                                    {option}
+                                    {option.label}
                                 </button>
                             ))}
                         </div>

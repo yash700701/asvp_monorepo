@@ -30,11 +30,16 @@ export default function DashboardPage() {
     const [mentions, setMentions] = useState<number>(0);
     const [totalResponses, setTotalResponses] = useState<number>(0);
     const [mentionRate, setMentionRate] = useState<number>(0);
+    const [mentionRateTrend, setMentionRateTrend] = useState<string | null>(null);
+    const [totalResponsesTrend, setTotalResponsesTrend] = useState<string | null>(null);
 
     const [dominantSentiment, setDominantSentiment] = useState<"positive" | "neutral" | "negative" | null>(null);
+    const [sentimentTrend, setSentimentTrend] = useState<string | null>(null);
 
     const [averageProminence, setAverageProminence] = useState<number | null>(null);
     const [averageProminenceposition, setAverageProminencePosition] = useState<string | null>(null);
+    const [prominenceTrend, setProminenceTrend] = useState<string | null>(null);
+    const [selectedDateRange, setSelectedDateRange] = useState<"7d" | "30d">("7d");
 
     useEffect(() => {
         async function loadBrands() {
@@ -68,6 +73,25 @@ export default function DashboardPage() {
         loadBrands();
     }, [setBrands, selectedBrandId, setSelectedBrandId]);
 
+    useEffect(() => {
+        if (selectedBrandId) {
+            return;
+        }
+
+        setAverageVisibility(null);
+        setVisibilityChange(null);
+        setMentions(0);
+        setTotalResponses(0);
+        setMentionRate(0);
+        setMentionRateTrend(null);
+        setTotalResponsesTrend(null);
+        setDominantSentiment(null);
+        setSentimentTrend(null);
+        setAverageProminence(null);
+        setAverageProminencePosition(null);
+        setProminenceTrend(null);
+    }, [selectedBrandId]);
+
     const topBarBrands = useMemo(
         () => brands.map((b) => ({ id: b.id, name: b.brand_name })),
         [brands]
@@ -79,6 +103,8 @@ export default function DashboardPage() {
                 brands={topBarBrands}
                 selectedBrandId={selectedBrandId}
                 onSelectBrand={setSelectedBrandId}
+                selectedDateRange={selectedDateRange}
+                onSelectDateRange={setSelectedDateRange}
                 loading={loadingBrands}
                 brandLoadingError={brandLoadingError}
             />
@@ -88,15 +114,20 @@ export default function DashboardPage() {
                 visibilityChange={visibilityChange}
                 mentions={mentions}
                 mentionRate={mentionRate}
+                mentionRateTrend={mentionRateTrend}
                 averageProminence={averageProminence}
                 averageProminenceposition={averageProminenceposition}
+                prominenceTrend={prominenceTrend}
                 dominantSentiment={dominantSentiment}
+                sentimentTrend={sentimentTrend}
                 totalResponses={totalResponses}
+                totalResponsesTrend={totalResponsesTrend}
             />
 
             {selectedBrandId ? (
                 <VisibilityOverview
                     brandId={selectedBrandId}
+                    dateRange={selectedDateRange}
                     onAverageVisibilityChange={setAverageVisibility}
                     onVisibilityChange={setVisibilityChange}
                 />
@@ -110,9 +141,12 @@ export default function DashboardPage() {
                 {selectedBrandId ? (
                     <BrandMentionsDashboard
                         brandId={selectedBrandId}
+                        dateRange={selectedDateRange}
                         onMentionsChange={setMentions}
                         onTotalResponsesChange={setTotalResponses}
                         onMentionRateChange={setMentionRate}
+                        onMentionRateTrendChange={setMentionRateTrend}
+                        onTotalResponsesTrendChange={setTotalResponsesTrend}
                     />
                 ) : (
                     <div className="rounded-md border px-2 py-1 text-sm bg-blue-50 border-blue-500">
@@ -123,7 +157,9 @@ export default function DashboardPage() {
                 {selectedBrandId ? (
                     <SentimentDashboard 
                         brandId={selectedBrandId}
+                        dateRange={selectedDateRange}
                         onDominantSentimentChange={setDominantSentiment}
+                        onSentimentTrendChange={setSentimentTrend}
                     />
                 ) : (
                     <div className="rounded-md border px-2 py-1 text-sm bg-blue-50 border-blue-500">
@@ -135,8 +171,10 @@ export default function DashboardPage() {
             {selectedBrandId ? (
                 <ProminenceDashboard 
                     brandId={selectedBrandId}
+                    dateRange={selectedDateRange}
                     onAverageProminence={setAverageProminence}
-                    onAveragePosition={setAverageProminencePosition} 
+                    onAveragePosition={setAverageProminencePosition}
+                    onProminenceTrendChange={setProminenceTrend}
                 />
             ) : (
                 <div className="rounded-md border px-2 py-1 text-sm bg-blue-50 border-blue-500">

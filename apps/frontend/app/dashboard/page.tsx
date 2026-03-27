@@ -31,7 +31,7 @@ export default function DashboardPage() {
     const [totalResponses, setTotalResponses] = useState<number>(0);
     const [mentionRate, setMentionRate] = useState<number>(0);
 
-    const [averageSentiment, setAverageSentiment] = useState<number | null>(null);
+    const [dominantSentiment, setDominantSentiment] = useState<"positive" | "neutral" | "negative" | null>(null);
 
     const [averageProminence, setAverageProminence] = useState<number | null>(null);
     const [averageProminenceposition, setAverageProminencePosition] = useState<string | null>(null);
@@ -86,12 +86,12 @@ export default function DashboardPage() {
             <KPIGrid
                 averageVisibility={averageVisibility}
                 visibilityChange={visibilityChange}
-                averageSentiment={averageSentiment}
                 mentions={mentions}
-                totalResponses={totalResponses}
                 mentionRate={mentionRate}
                 averageProminence={averageProminence}
                 averageProminenceposition={averageProminenceposition}
+                dominantSentiment={dominantSentiment}
+                totalResponses={totalResponses}
             />
 
             {selectedBrandId ? (
@@ -121,7 +121,10 @@ export default function DashboardPage() {
                 )}
 
                 {selectedBrandId ? (
-                    <SentimentDashboard brandId={selectedBrandId} />
+                    <SentimentDashboard 
+                        brandId={selectedBrandId}
+                        onDominantSentimentChange={setDominantSentiment}
+                    />
                 ) : (
                     <div className="rounded-md border px-2 py-1 text-sm bg-blue-50 border-blue-500">
                         Select a brand to view sentiment overview.

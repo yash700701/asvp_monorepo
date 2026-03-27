@@ -12,7 +12,30 @@ type KPI = {
     position?: string | number
 }
 
-export default function KPIGrid({ averageVisibility, visibilityChange, averageSentiment, averageProminence, averageProminenceposition, mentions, totalResponses, mentionRate }: { averageVisibility: number | null; visibilityChange: string | null; averageSentiment: number | null; averageProminence: number | null; averageProminenceposition: string | null; mentions: number; totalResponses: number; mentionRate: number }) {
+function formatSentimentLabel(label: "positive" | "neutral" | "negative" | null) {
+    if (!label) return "Neutral";
+    return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+export default function KPIGrid({
+    averageVisibility,
+    visibilityChange,
+    dominantSentiment,
+    averageProminence,
+    averageProminenceposition,
+    mentions,
+    totalResponses,
+    mentionRate,
+}: {
+    averageVisibility: number | null;
+    visibilityChange: string | null;
+    dominantSentiment: "positive" | "neutral" | "negative" | null;
+    averageProminence: number | null;
+    averageProminenceposition: string | null;
+    mentions: number;
+    totalResponses: number;
+    mentionRate: number;
+}) {
     const kpis: KPI[] = [
         { title: "Visibility Score", value: averageVisibility ?? 0, trend: visibilityChange ?? "0%" },
         {
@@ -23,8 +46,7 @@ export default function KPIGrid({ averageVisibility, visibilityChange, averageSe
             trend: "+3.1%"
         },
         { title: "Avg Prominence", value: averageProminence ?? 0, position: averageProminenceposition ?? "0", trend: "-1.4%" },
-        { title: "Sentiment Score", value: averageSentiment ?? "Positive" },
-        { title: "AI Confidence", value: 0.82, trend: "+0.8%" },
+        { title: "Sentiment Score", value: formatSentimentLabel(dominantSentiment) },
         { title: "Total Answers", value: totalResponses, trend: "+12%" },
     ]
 

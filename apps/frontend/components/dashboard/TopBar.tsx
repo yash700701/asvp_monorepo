@@ -32,9 +32,6 @@ export default function TopBar({
     const dateOptions = [
         "Last 7 days",
         "Last 30 days",
-        "Last 90 days",
-        "This Month",
-        "Custom Range",
     ]
 
     const selectedBrand =

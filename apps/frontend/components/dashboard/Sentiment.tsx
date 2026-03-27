@@ -27,7 +27,13 @@ type ApiResponse = {
     data: SentimentRow[];
 };
 
-export default function SentimentDashboard({ brandId }: { brandId: string }) {
+export default function SentimentDashboard({
+    brandId,
+    onDominantSentimentChange,
+}: {
+    brandId: string;
+    onDominantSentimentChange: (label: "positive" | "neutral" | "negative" | null) => void;
+}) {
     const [data, setData] = useState<SentimentRow[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -45,6 +51,20 @@ export default function SentimentDashboard({ brandId }: { brandId: string }) {
 
                 if (json.success) {
                     setData(json.data);
+
+                    const labelCounts = json.data.reduce(
+                        (acc, row) => {
+                            acc[row.sentiment_label] += 1;
+                            return acc;
+                        },
+                        { positive: 0, neutral: 0, negative: 0 }
+                    );
+
+                    const dominantLabel = (Object.entries(labelCounts).sort(
+                        (a, b) => b[1] - a[1]
+                    )[0]?.[0] || null) as "positive" | "neutral" | "negative" | null;
+
+                    onDominantSentimentChange(dominantLabel);
                 }
             } catch (err) {
                 console.error("Sentiment fetch failed", err);
@@ -53,8 +73,12 @@ export default function SentimentDashboard({ brandId }: { brandId: string }) {
             }
         }
 
-        if (brandId) fetchSentiment();
-    }, [brandId]);
+        if (brandId) {
+            fetchSentiment();
+        } else {
+            onDominantSentimentChange(null);
+        }
+    }, [brandId, onDominantSentimentChange]);
 
     if (loading) {
         return (
